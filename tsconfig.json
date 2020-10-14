@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "esModuleInterop":false,
+        "sourceMap": true,
+        "target": "es2017",
+        "outDir": "./dist",
+        "baseUrl": "./src",
+    },
+    "include": [
+        "src/**/*.ts", "src/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
