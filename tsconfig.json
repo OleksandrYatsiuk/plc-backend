@@ -5,7 +5,7 @@
         "resolveJsonModule": true,
         "esModuleInterop":false,
         "sourceMap": true,
-        "target": "es2017",
+        "target": "es2016",
         "outDir": "./dist",
         "baseUrl": "./src",
     },
