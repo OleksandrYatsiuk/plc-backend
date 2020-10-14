@@ -1,5 +1,6 @@
 import Telegraf from 'telegraf';
 import {Markup} from 'telegraf';
+import { couldStartTrivia } from 'typescript';
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const link = 'https://lesson-frontend.herokuapp.com/';
@@ -11,7 +12,6 @@ bot.telegram.deleteWebhook().then(success => {
 
 
 bot.start(({ reply }) => {
-    reply('About us ' + link);
 
     return reply('Main menu', Markup
         .keyboard([
@@ -23,7 +23,6 @@ bot.start(({ reply }) => {
         .extra()
     )
 })
-
 bot.hears('🔍 Про нас', ctx => {
     ctx.reply('About us ' + link);
 })
