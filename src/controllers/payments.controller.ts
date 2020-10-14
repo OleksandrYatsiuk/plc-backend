@@ -1,9 +1,9 @@
-import Controller from "./Controller";
 import * as express from 'express';
 import { LiqPayService } from '../services/liqpay.service';
+import BaseController from "./base.controller";
 // import { code200 } from "../../middleware";
 
-export class PaymentsController extends Controller {
+export class PaymentsController extends BaseController {
     public path = '/payments';
     private payment = new LiqPayService();
 
@@ -27,7 +27,7 @@ export class PaymentsController extends Controller {
             // 'order_id': '1233f',
             version: '3'
         });
-        response.status(200).json({result:payment});
+        response.status(200).json({ result: payment });
         // code200(response, payment);
     };
 

@@ -5,12 +5,12 @@
         "resolveJsonModule": true,
         "esModuleInterop":false,
         "sourceMap": true,
-        "target": "es2016",
+        "target": "es2017",
         "outDir": "./dist",
         "baseUrl": "./src",
     },
     "include": [
-        "src/**/*.ts", "src/controllers/controller.ts"
+        "src/**/*.ts", "src/*.ts"
     ],
     "exclude": [
         "node_modules"

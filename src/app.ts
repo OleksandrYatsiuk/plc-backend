@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 // import * as mongoose from 'mongoose';
 // import errorMiddleware from './middleware/error.middleware';
-import Controller from '../src/controllers/controller';
+import { Controller } from './interfaces/controller.interface';
 
 export default class App {
 	public app: express.Application;
