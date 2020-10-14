@@ -10,7 +10,7 @@
         "baseUrl": "./src",
     },
     "include": [
-        "src/**/*.ts", "src/*.ts"
+        "src/**/*.ts", "src/controllers/controller.ts"
     ],
     "exclude": [
         "node_modules"
