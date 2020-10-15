@@ -37,5 +37,5 @@ bot.hears('📞 Контакти', ctx => {
     ctx.reply('Contacts: ' + link);
 })
 bot.hears('☸ Оплата', ctx => {
-    ctx.reply('Open ' + link+'/payment');
+    ctx.reply('Open ' + link+'payment');
 })
