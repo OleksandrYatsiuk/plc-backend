@@ -34,8 +34,9 @@ bot.hears('😎 Курси', ctx => {
     ctx.reply(file.price);
 })
 bot.hears('📞 Контакти', ctx => {
-    ctx.reply('Contacts: ' + link);
+    console.log(ctx.chat)
+    ctx.replyWithMarkdown(`Open: [Contacts](${link})`);
 })
 bot.hears('☸ Оплата', ctx => {
-    ctx.reply('Open ' + link+'payment');
-})
+    ctx.replyWithMarkdown(`Open: [Payment](${link+'payment'})`);
+});
