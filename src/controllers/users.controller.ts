@@ -19,7 +19,7 @@ export class UsersController extends BaseController {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}/register`, this.register);
         this.router.patch(`${this.path}/current`, this.update);
-        this.router.get(`${this.path}`, this.geItem);
+        this.router.get(`${this.path}/user`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
     // phone
@@ -47,8 +47,8 @@ export class UsersController extends BaseController {
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const data = request.body;
-        this.model.paginate({}, { page: data.page || 1, limit: data.limit || 20 })
+        const data = request.params;
+        this.model.paginate({}, { page: +data.page || 1, limit: +data.limit || 20 })
             .then(({ docs, total, limit, page, pages }) => {
                 response.status(200).json({ result: docs.map(user => this.parseModel(user)) });
             })
