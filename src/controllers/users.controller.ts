@@ -59,7 +59,11 @@ export class UsersController extends BaseController {
         const data = request.query;
         this.model.findOne(data)
             .then(user => {
-                response.status(200).json({ result: this.parseModel(user) })
+                if (user) {
+                    response.status(200).json({ result: this.parseModel(user) })
+                } else {
+                    response.status(404).json({ result: "User was not found" })
+                }
             })
             .catch(err => response.status(422).json({ result: err.message || err }));
     }
