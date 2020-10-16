@@ -12,7 +12,9 @@ bot.telegram.deleteWebhook().then(success => {
 })
 
 bot.start(ctx => {
-    axios.default.patch(apiUrl + '/users/current', { phone: ctx['startPayload'], chat_id: ctx.chat.id })
+    if (ctx['startPayload']) {
+        axios.default.patch(apiUrl + '/users/current', { phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id });
+    }
     return ctx.reply('Main menu', Markup
         .keyboard([
             ['🔍 Про нас', '😎 Курси'], // Row1 with 2 buttons

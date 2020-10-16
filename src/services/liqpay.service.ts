@@ -4,7 +4,7 @@ var crypto = require('crypto');
 export class LiqPayService {
     public host = 'https://www.liqpay.ua/api/';
     public = process.env.PUBLIC_KEY;
-    private= process.env.PRIVATE_KEY;
+    private = process.env.PRIVATE_KEY;
     constructor() {
     }
 
@@ -70,10 +70,8 @@ export class LiqPayService {
         var data = new Buffer(JSON.stringify(params)).toString('base64');
         var signature = this.str_to_sign(this.private + data + this.private);
 
-        request.post(this.host + path, { form: { data: data, signature: signature } }, (error, response) => {
-            console.log(error);
-            console.log(response.body);
-        })
+        // request.post(this.host + path, { form: { data: data, signature: signature } }, (error, response) => {
+        // })
     }
 };
 
