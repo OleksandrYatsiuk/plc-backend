@@ -1,28 +1,30 @@
 import Telegraf from 'telegraf';
-import {Markup} from 'telegraf';
+import { Markup, Extra } from 'telegraf';
 import * as axios from 'axios';
-const file  = require('../data.json');
+const file = require('../data.json');
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const link = 'https://lesson-frontend.herokuapp.com/';
+const link = 'https://lesson-frontend.herokuapp.com';
+const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
 
 bot.telegram.deleteWebhook().then(success => {
     success && console.log('🤖 is listening to your commands');
     bot.startPolling();
 })
-
-
-bot.start(({ reply }) => {
-
+bot.command('menu', ({reply})=>{
     return reply('Main menu', Markup
-        .keyboard([
-            ['🔍 Про нас', '😎 Курси'], // Row1 with 2 buttons
-            ['☸ Результати', '📞 Контакти'], // Row2 with 2 buttons
-            ['☸ Оплата'], // Row2 with 2 buttons
-        ])
-        .oneTime()
-        .resize()
-        .extra()
-    )
+    .keyboard([
+        ['🔍 Про нас', '😎 Курси'], // Row1 with 2 buttons
+        ['☸ Результати', '📞 Контакти'], // Row2 with 2 buttons
+        ['☸ Оплата'], // Row2 with 2 buttons
+    ])
+    .oneTime()
+    .resize()
+    .extra()
+)
+})
+bot.start(( ctx) => {
+    console.log(ctx.chat);
+// axios.default.patch(apiUrl+'/users/current')
 })
 bot.hears('🔍 Про нас', ctx => {
     ctx.reply(file.about);
@@ -33,10 +35,12 @@ bot.hears('☸ Результати', ctx => {
 bot.hears('😎 Курси', ctx => {
     ctx.reply(file.price);
 })
-bot.hears('📞 Контакти', ctx => {
-    console.log(ctx.chat)
+bot.hears('📞 Контакти', (ctx) => {
     ctx.replyWithMarkdown(`Open: [Contacts](${link})`);
 })
 bot.hears('☸ Оплата', ctx => {
-    ctx.replyWithMarkdown(`Open: [Payment](${link+'payment'})`);
+    return ctx.reply('Practical Legal Courses – школа нового формату', Extra.HTML().markup((m) =>
+        m.inlineKeyboard([
+            m.urlButton('Оплатити', `${link}/payment?chat_id=${ctx.chat.id}&courseId=1`),
+        ])))
 });
