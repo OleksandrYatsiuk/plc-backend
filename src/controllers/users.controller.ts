@@ -23,9 +23,18 @@ export class UsersController extends BaseController {
     // phone
     private register = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: User = request.body;
-        this.model.create(data)
-            .then(user => response.status(200).json({ result: this.parseModel(user) }))
-            .catch(err => response.status(422).json({ result: err.message || err }))
+        this.model.exists({ phone: data.phone })
+            .then(exist => {
+                if (!exist) {
+                    this.model.create(data)
+                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
+                        .catch(err => response.status(422).json({ result: err.message || err }))
+                } else {
+                    this.model.findOne({ phone: data.phone })
+                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
+                }
+            })
+
     };
     private parseModel(user: User) {
         return {
