@@ -65,7 +65,8 @@ export class UsersController extends BaseController {
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const { id } = request.query
+        const { id } = request.params
+        console.log(id);
         this.model.findByIdAndDelete(id)
             .then(user => response.status(204).json())
             .catch(err => response.status(422).json({ result: err.message || err }));
