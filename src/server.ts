@@ -1,12 +1,11 @@
 import App from './app';
 import 'dotenv/config';
-import {
-	PaymentsController
-} from './controllers/payments.controller';
+import { PaymentsController, UsersController } from './controllers';
 
 const app = new App(
 	[
-		new PaymentsController()
+		new PaymentsController(),
+		new UsersController()
 	],
 	+process.env.PORT,
 	'/v1'

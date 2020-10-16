@@ -1,6 +1,6 @@
 import * as express from 'express';
+import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';
-// import * as mongoose from 'mongoose';
 // import errorMiddleware from './middleware/error.middleware';
 import { Controller } from './interfaces/controller.interface';
 
@@ -9,6 +9,7 @@ export default class App {
 	public port: number;
 	public version: string;
 	public host: string;
+	public hostDb=`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-9ab1f.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
 	constructor(controllers: Controller[], port: number, version: string) {
 		this.app = express();
@@ -18,6 +19,7 @@ export default class App {
 		this.setCors();
 		this.initializeControllers(controllers);
 		// this.initializeErrorHandling();
+		this.connectToTheDatabase();
 	}
 	/**
 	* Headers (CORS)
@@ -60,4 +62,17 @@ export default class App {
 			// next(code404(response, 'Page not found!'));
 		});
 	}
+
+	private connectToTheDatabase() {
+
+        mongoose
+            .connect(this.hostDb, {
+                useNewUrlParser: true,
+                useCreateIndex: true,
+                useUnifiedTopology: true,
+                useFindAndModify: false
+            })
+            .then(() => console.info('MongoDB connected successfully!'))
+            .catch((error) => console.error(`MongoDB error:\n ${error}`));
+    }
 }
