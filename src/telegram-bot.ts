@@ -10,22 +10,20 @@ bot.telegram.deleteWebhook().then(success => {
     success && console.log('🤖 is listening to your commands');
     bot.startPolling();
 })
-bot.command('menu', ({reply})=>{
-    return reply('Main menu', Markup
-    .keyboard([
-        ['🔍 Про нас', '😎 Курси'], // Row1 with 2 buttons
-        ['☸ Результати', '📞 Контакти'], // Row2 with 2 buttons
-        ['☸ Оплата'], // Row2 with 2 buttons
-    ])
-    .oneTime()
-    .resize()
-    .extra()
-)
+
+bot.start(ctx => {
+    axios.default.patch(apiUrl + '/users/current', { phone: ctx['startPayload'], chat_id: ctx.chat.id })
+    return ctx.reply('Main menu', Markup
+        .keyboard([
+            ['🔍 Про нас', '😎 Курси'], // Row1 with 2 buttons
+            ['☸ Результати', '📞 Контакти'], // Row2 with 2 buttons
+            ['☸ Оплата'], // Row2 with 2 buttons
+        ])
+        .oneTime()
+        .resize()
+        .extra())
 })
-bot.start(( ctx) => {
-    console.log(ctx.chat);
-// axios.default.patch(apiUrl+'/users/current')
-})
+
 bot.hears('🔍 Про нас', ctx => {
     ctx.reply(file.about);
 })

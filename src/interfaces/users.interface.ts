@@ -6,6 +6,7 @@ export interface User extends mongoose.Document {
     lastName?: string;
     phone: string;
     email?: string;
+    chat_id: number;
     status: number;
     createdAt: number;
     updatedAt: number;

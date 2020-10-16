@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     lastName: { type: String, default: null },
     email: { type: String, default: null },
     phone: { type: String, unique: true, required: true },
+    chat_id: { type: Number, unique: true },
     status: { type: Number, default: 0 },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
