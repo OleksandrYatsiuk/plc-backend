@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/lessons.schema';
 import { Lesson } from '../interfaces/index'
-// import { code200 } from "../../middleware";
+import { NotFoundException, UnprocessableEntityException } from '../exceptions';
 
 export class LessonsController extends BaseController {
     public path = '/lessons';
@@ -28,7 +28,7 @@ export class LessonsController extends BaseController {
                 if (!exist) {
                     this.model.create(data)
                         .then(user => response.status(200).json({ result: this.parseModel(user) }))
-                        .catch(err => response.status(422).json({ result: err.message || err }))
+                        .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
                 }
             })
     };
@@ -49,14 +49,14 @@ export class LessonsController extends BaseController {
             .then(lesson => {
                 response.status(200).json({ result: this.parseModel(lesson) })
             })
-            .catch(err => response.status(404).json({ result: "Lesson was not found" }));
+            .catch(err => next(new NotFoundException('Lesson')));
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
-            .then(user => response.status(204).json())
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(() => response.status(204).json())
+            .catch(err => next(new NotFoundException('Lesson')));
     }
 
     private parseModel(lesson: Lesson) {
@@ -65,6 +65,7 @@ export class LessonsController extends BaseController {
             name: lesson.name,
             context: lesson.context,
             file: lesson.file,
+            status: lesson.status,
             courseId: lesson.courseId,
             createdAt: lesson.createdAt,
             updatedAt: lesson.updatedAt

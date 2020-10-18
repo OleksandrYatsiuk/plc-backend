@@ -1,9 +1,9 @@
 import * as express from 'express';
 import * as mongoose from 'mongoose';
-import BaseController from "./base.controller";
+import BaseController from './base.controller';
 import model from './schemas/users.schema';
 import { User } from '../interfaces/index'
-// import { code200 } from "../../middleware";
+import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 
 export class UsersController extends BaseController {
     public path = '/users';
@@ -22,7 +22,7 @@ export class UsersController extends BaseController {
         this.router.get(`${this.path}/user`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
-    // phone
+
     private register = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: User = request.body;
         this.model.exists({ phone: data.phone })
@@ -30,7 +30,7 @@ export class UsersController extends BaseController {
                 if (!exist) {
                     this.model.create(data)
                         .then(user => response.status(200).json({ result: this.parseModel(user) }))
-                        .catch(err => response.status(422).json({ result: err.message || err }))
+                        .catch(err => next(new UnprocessableEntityException([{ field: 'phone', message: err.message }])))
                 } else {
                     this.model.findOne({ phone: data.phone })
                         .then(user => response.status(200).json({ result: this.parseModel(user) }))
@@ -62,7 +62,7 @@ export class UsersController extends BaseController {
                 if (user) {
                     response.status(200).json({ result: this.parseModel(user) })
                 } else {
-                    response.status(404).json({ result: "User was not found" })
+                    next(new NotFoundException('User'));
                 }
             })
             .catch(err => response.status(422).json({ result: err.message || err }));
@@ -70,7 +70,6 @@ export class UsersController extends BaseController {
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
-        console.log(id);
         this.model.findByIdAndDelete(id)
             .then(user => response.status(204).json())
             .catch(err => response.status(422).json({ result: err.message || err }));
