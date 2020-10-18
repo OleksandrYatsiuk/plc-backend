@@ -34,8 +34,9 @@ export class LessonsController extends BaseController {
     };
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const data = request.params;
-        this.model.paginate({}, { page: +data.page || 1, limit: +data.limit || 20 })
+        let data = request.query;
+        data ? data = { courseId: data.courseId } : data = {};
+        this.model.paginate(data, { page: +data.page || 1, limit: +data.limit || 20 })
             .then(({ docs, total, limit, page, pages }) => {
                 response.status(200).json({ result: docs.map(lesson => this.parseModel(lesson)) });
             })
@@ -62,8 +63,8 @@ export class LessonsController extends BaseController {
         return {
             id: lesson._id,
             name: lesson.name,
-            context:lesson.context,
-            file:lesson.file,
+            context: lesson.context,
+            file: lesson.file,
             courseId: lesson.courseId,
             createdAt: lesson.createdAt,
             updatedAt: lesson.updatedAt
