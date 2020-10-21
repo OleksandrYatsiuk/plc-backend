@@ -6,9 +6,10 @@ import axios from 'axios';
 
 const file = require('../data.json');
 const bot = new Telegraf(process.env.BOT_TOKEN);
-bot.use(Telegraf.log())
+// bot.use(Telegraf.log())
 const link = 'https://lesson-frontend.herokuapp.com';
-const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
+// const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
+const apiUrl = 'http://localhost:5000/api/v1';
 
 bot.telegram.deleteWebhook().then(success => {
     success && console.log('🤖 is listening to your commands');
@@ -72,14 +73,20 @@ const superWizard = new WizardScene(
     },
     ctx => {
         const lessonId = ctx.update.callback_query.data;
+        ctx.wizard.state.data = lessonId;
         axios.get(apiUrl + `/lessons/${lessonId}`).then(result => {
             const lesson = result.data.result;
-            ctx.reply(JSON.stringify(lesson));
+            ctx.reply(JSON.stringify(lesson),
+                Extra.HTML().markup((m) =>
+                    m.inlineKeyboard([m.callbackButton('Далі', 'next')])
+                ))
         })
+
         return ctx.wizard.next()
     },
     ctx => {
-        ctx.reply('Додати ще коментар чи файл?', Markup
+
+        ctx.reply('Ви можете вписати результати нижче:', Markup
             .keyboard([['Завершити']])
             .oneTime()
             .resize()
@@ -87,7 +94,29 @@ const superWizard = new WizardScene(
         return ctx.wizard.next()
     },
     ctx => {
-        if (ctx.message.text == 'Завершити') {
+
+        let msg = ctx.update.message
+        const data = {
+            chat_id: msg.chat.id,
+            message: {
+                id: msg.message_id,
+                text: msg.text,
+                date: msg.date,
+                photo: fetchPhoto(msg),
+                document: fetchDocument(msg)
+            },
+            lessonId: ctx.wizard.state.data,
+        }
+
+        console.log(data);
+
+        axios.post(apiUrl + '/messages', data)
+            .then(result => {
+                console.log(result.data.result)
+            })
+            .catch(err => console.log(err.response.data))
+
+        if (ctx.update.message.text == 'Завершити') {
             ctx.reply('Bye!')
             return ctx.scene.leave();
         }
@@ -107,3 +136,20 @@ bot.use(stage.middleware());
 bot.action(/course/, ctx => {
     return ctx['scene'].enter('lesson-stepper');
 });
+function fetchPhoto(msg) {
+    if (msg.photo) {
+        return {
+            id: msg.photo[0].file_id,
+            caption: msg.caption
+        }
+    }
+}
+function fetchDocument(msg) {
+    if (msg.document) {
+        return {
+            id: msg.document.file_id,
+            caption: msg.caption
+        }
+    }
+
+}
