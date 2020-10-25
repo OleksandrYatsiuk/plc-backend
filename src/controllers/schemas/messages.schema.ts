@@ -8,15 +8,15 @@ const schema = new mongoose.Schema({
     lessonId: { type: String },
     message: {
         id: { type: Number },
-        text: { type: String, default:'' },
+        text: { type: String, default: '' },
         date: { type: Number },
         photo: {
-            id: { type: String },
-            caption: { type: String, default:'' }
+            link: { type: String },
+            caption: { type: String, default: '' }
         },
         document: {
-            id: { type: String },
-            caption: { type: String, default:'' }
+            link: { type: String },
+            caption: { type: String, default: '' }
         }
     },
     createdAt: { type: Number, default: Date.now() },

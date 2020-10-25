@@ -4,7 +4,6 @@ import * as bodyParser from 'body-parser';
 import { Controller } from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import { NotFoundException } from './exceptions';
-
 export default class App {
 	public app: express.Application;
 	public port: number;
@@ -45,7 +44,7 @@ export default class App {
 	public listen() {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
-			require('./telegram-bot');
+			require('./telegram-bot/telegram-bot');
 		});
 	}
 
