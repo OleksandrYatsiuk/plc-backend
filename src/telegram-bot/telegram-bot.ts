@@ -17,9 +17,9 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 // bot.use(Telegraf.log())
 const link = 'https://lesson-frontend.herokuapp.com';
 
-// const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
+const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
 
-const apiUrl = 'http://localhost:5000/api/v1';
+// const apiUrl = 'http://localhost:5000/api/v1';
 
 bot.telegram.deleteWebhook().then(success => {
     success && console.log('🤖 is listening to your commands');
