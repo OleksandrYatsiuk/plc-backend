@@ -1,22 +1,19 @@
+import { EContentTypes } from './../../interfaces/messages.interface';
 import * as mongoose from 'mongoose';
 import * as  mongoosePaginate from 'mongoose-paginate';
-import { Messages } from '../../interfaces/index';
+import { EMessageTypes, Messages } from '../../interfaces/index';
 
 const schema = new mongoose.Schema({
     id: mongoose.Schema.Types.ObjectId,
-    chat_id: { type: Number },
+    chat_id: { type: Number, required: true },
     lessonId: { type: String },
+    type: { type: String, enum: [EMessageTypes.user, EMessageTypes.bot], required: true },
     message: {
-        id: { type: Number },
-        text: { type: String, default: '' },
-        date: { type: Number },
-        photo: {
-            link: { type: String },
-            caption: { type: String, default: '' }
-        },
-        document: {
-            link: { type: String },
-            caption: { type: String, default: '' }
+        id: { type: Number, required: true },
+        content: {
+            type: { type: String, required: true, enum: [EContentTypes.file, EContentTypes.photo, EContentTypes.text] },
+            link: { type: String, default: null },
+            caption: { type: String, default: null }
         }
     },
     createdAt: { type: Number, default: Date.now() },

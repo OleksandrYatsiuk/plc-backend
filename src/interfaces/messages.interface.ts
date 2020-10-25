@@ -2,30 +2,37 @@ import * as mongoose from 'mongoose';
 
 export interface Messages extends mongoose.Document {
     readonly id: string;
-    message: Message;
-    chat_id: string;
+    chat_id: number;
     lessonId: string;
+    type: EMessageTypes;
+    message: Message;
     createdAt?: number;
 }
 export interface CustomMessage {
     readonly id?: string;
-    message: Message;
     chat_id: number;
     lessonId: string;
+    type: EMessageTypes;
+    message: Message;
     createdAt?: number;
 }
 
 interface Message {
     id: number;
-    text: string;
-    date: number;
-    photo?: FileOptions;
-    document?: FileOptions;
+    content?: MessageOptions;
 }
-export interface FileOptions {
-    type: TFileTypes;
-    link: string;
-    caption: string;
+export interface MessageOptions {
+    type: EContentTypes;
+    link: string | null;
+    text: string | null;
 }
 
-export type TFileTypes = 'file' | 'photo';
+export enum EContentTypes {
+    file = 'file',
+    photo = 'photo',
+    text = 'text'
+}
+export enum EMessageTypes {
+    bot = 'bot',
+    user = 'user'
+}

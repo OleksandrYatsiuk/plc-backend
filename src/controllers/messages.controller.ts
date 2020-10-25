@@ -24,7 +24,7 @@ export class MessagesController extends BaseController {
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
         this.model.create(data)
-            .then(user => response.status(200).json({ result: this.parseModel(user) }))
+            .then(message => response.status(200).json({ result: this.parseModel(message) }))
             .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
     };
 
@@ -55,6 +55,7 @@ export class MessagesController extends BaseController {
             id: message._id,
             chat_id: message.chat_id,
             lessonId: message.lessonId,
+            type: message.type,
             message: message.message,
             createdAt: message.createdAt
         }
