@@ -62,16 +62,20 @@ export class MessagesController extends BaseController {
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
-
-        bot.telegram.getFileLink(msg.message.content.link)
-            .then(link => {
-                msg.message.content.link = link;
-                this.model.create(msg)
-                    .then(message => response.status(200).json({ result: this.parseModel(message) }))
-                    .catch(err => next(new Error(err.message)))
-            })
-            .catch(err => next(new Error(err.message)))
-
+        if (!msg.message.content.link) {
+            this.model.create(msg)
+                .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                .catch(err => next(new Error(err.message)))
+        } else {
+            bot.telegram.getFileLink(msg.message.content.link)
+                .then(link => {
+                    msg.message.content.link = link;
+                    this.model.create(msg)
+                        .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                        .catch(err => next(new Error(err.message)))
+                })
+                .catch(err => next(new Error(err.message)))
+        }
     }
 
     private parseModel(message: Messages) {
