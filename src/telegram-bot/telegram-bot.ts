@@ -6,8 +6,8 @@ import axios from 'axios';
 import { SceneContextMessageUpdate } from 'telegraf/typings/stage';
 import { Message } from 'telegraf/typings/telegram-types';
 const file = require('../../data.json');
-let bot = new Telegraf(process.env.BOT_TOKEN);
-export const a = new Telegraf(process.env.BOT_TOKEN);
+// let bot = new Telegraf(process.env.BOT_TOKEN);
+export const bot = new Telegraf(process.env.BOT_TOKEN);
 // bot.use(Telegraf.log())
 const link = 'https://lesson-frontend.herokuapp.com';
 

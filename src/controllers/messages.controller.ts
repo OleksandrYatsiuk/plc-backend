@@ -8,9 +8,7 @@ import { Messages } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import { Message } from 'telegraf/typings/telegram-types';
 import * as multer from 'multer';
-import { a } from '../telegram-bot/telegram-bot'
-import * as fs from 'fs';
-import { fileURLToPath } from 'url';
+import { bot } from '../telegram-bot/telegram-bot'
 
 export class MessagesController extends BaseController {
     public url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/`;
@@ -64,9 +62,16 @@ export class MessagesController extends BaseController {
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
-        this.model.create(msg)
-            .then(message => response.status(200).json({ result: this.parseModel(message) }))
+
+        bot.telegram.getFileLink(msg.message.content.link)
+            .then(link => {
+                msg.message.content.link = link;
+                this.model.create(msg)
+                    .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                    .catch(err => next(new Error(err.message)))
+            })
             .catch(err => next(new Error(err.message)))
+
     }
 
     private parseModel(message: Messages) {
