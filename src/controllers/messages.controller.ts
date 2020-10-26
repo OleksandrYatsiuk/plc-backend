@@ -1,4 +1,4 @@
-import { CustomMessage, EContentTypes, EMessageTypes } from './../interfaces/messages.interface';
+import { CustomMessage } from './../interfaces/messages.interface';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import axios from 'axios';
@@ -6,7 +6,6 @@ import BaseController from "./base.controller";
 import model from './schemas/messages.schema';
 import { Messages } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
-import { Message } from 'telegraf/typings/telegram-types';
 import * as multer from 'multer';
 import { bot } from '../telegram-bot/telegram-bot'
 
@@ -18,8 +17,6 @@ export class MessagesController extends BaseController {
     public upload = multer({ dest: 'uploads/', preservePath: true })
     constructor() {
         super();
-
-
         this.initializeRoutes();
         this.model = model;
 
@@ -41,9 +38,17 @@ export class MessagesController extends BaseController {
 
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const data = request.params;
-        this.model.paginate({}, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) => response.status(200).json({ result: docs.map(course => this.parseModel(course)) }))
+        const data = request.query;
+        const queryParam = JSON.parse(JSON.stringify(data));
+        delete queryParam['page'];
+        delete queryParam['limit'];
+        this.model.paginate(queryParam, { page: +data.page || 1, limit: +data.limit || 20 })
+            .then(({ docs, total, limit, page, pages }) =>
+                response.status(200).json({
+                    result: docs.map(course => this.parseModel(course)), pagination: {
+                        page, limit, total, pages
+                    }
+                }))
             .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
     }
 
