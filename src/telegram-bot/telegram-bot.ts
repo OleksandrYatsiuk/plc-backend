@@ -144,12 +144,13 @@ bot.action(/course/, (ctx: any) => {
 function fetchFile(msg: Message, cb: Function): void {
     if (msg.document) {
         getFileLink(msg.document.file_id)
-            .then(link => cb({ type: EContentTypes.file, link: link, caption: msg.caption }));
+            .then(link => cb({ type: EContentTypes.file, link: link, text: msg.caption }));
     } else if (msg.photo) {
         getFileLink(msg.photo[0].file_id)
-            .then(link => cb({ type: EContentTypes.photo, link: link, caption: msg.caption }));
+            .then(link => cb({ type: EContentTypes.photo, link: link, text: msg.caption }));
     } else {
-        cb({ type: EContentTypes.text, link: null, caption: null })
+        console.log(111)
+        cb({ type: EContentTypes.text, link: null, text: msg.text })
     }
 }
 
