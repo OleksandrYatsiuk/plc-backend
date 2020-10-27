@@ -1,4 +1,3 @@
-import * as request from 'request';
 var crypto = require('crypto');
 
 export class LiqPayService {

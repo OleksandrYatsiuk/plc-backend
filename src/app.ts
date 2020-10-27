@@ -4,6 +4,7 @@ import * as bodyParser from 'body-parser';
 import { Controller } from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import { NotFoundException } from './exceptions';
+import { sendRequest } from './request';
 export default class App {
 	public app: express.Application;
 	public port: number;
@@ -20,6 +21,7 @@ export default class App {
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
 		this.connectToTheDatabase();
+		this.app.use(sendRequest)
 	}
 	/**
 	* Headers (CORS)
@@ -45,6 +47,7 @@ export default class App {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
 			require('./telegram-bot/telegram-bot');
+			sendRequest()
 		});
 	}
 
