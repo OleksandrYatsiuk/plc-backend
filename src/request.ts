@@ -3,6 +3,6 @@ export function sendRequest() {
     setInterval((() => {
         axios.get('https://lesson-backend.herokuapp.com/api/v1/courses')
         console.log('activate backend heroku ')
-    }), 0.45 * 3600)
+    }), 0.45 * 3600000)
 
 }
