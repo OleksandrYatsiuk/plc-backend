@@ -7,7 +7,7 @@ import {  UnprocessableEntityException } from '../exceptions/index';
 
 export class PagesController extends BaseController {
     public path = '/static-pages';
-    public model: mongoose.PaginateModel<IStaticPages & mongoose.Document>;
+    public model: mongoose.Model<IStaticPages & mongoose.Document>;
 
     constructor() {
         super();
@@ -29,11 +29,8 @@ export class PagesController extends BaseController {
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data = request.query;
-        const filterData = JSON.parse(JSON.stringify(data));
-        delete filterData.page;
-        delete filterData.limit;
-        this.model.paginate(filterData || {}, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) => response.status(200).json({ result: docs.map(page => this.parseModel(page)) }))
+        this.model.find(data)
+            .then((pages:IStaticPages[]) => response.status(200).json({ result: pages.map(page => this.parseModel(page))}))
             .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
     }
 
