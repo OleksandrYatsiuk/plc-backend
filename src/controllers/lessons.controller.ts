@@ -19,6 +19,7 @@ export class LessonsController extends BaseController {
         this.router.get(`${this.path}`, this.getList);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.post(`${this.path}`, this.create);
+        this.router.patch(`${this.path}/:id`, this.updateItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
     private create = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -50,6 +51,15 @@ export class LessonsController extends BaseController {
                 response.status(200).json({ result: this.parseModel(lesson) })
             })
             .catch(err => next(new NotFoundException('Lesson')));
+    }
+
+    private updateItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { id } = request.params;
+        const data = request.body;
+        this.model.findByIdAndUpdate(id, data, { new: true })
+            .then(lesson => response.status(200).json({ result: this.parseModel(lesson) }))
+            .catch(err => next(new NotFoundException('Lesson')))
+
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
