@@ -59,6 +59,7 @@ export class CoursesController extends BaseController {
         return {
             id: course._id,
             name: course.name,
+            description: course.description,
             status: course.status,
             createdAt: course.createdAt,
             updatedAt: course.updatedAt

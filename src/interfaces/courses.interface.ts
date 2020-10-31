@@ -4,6 +4,7 @@ export interface Course extends mongoose.Document {
     readonly id: string;
     name: string;
     status?: number;
+    description?: string;
     createdAt: number;
     updatedAt: number;
 }

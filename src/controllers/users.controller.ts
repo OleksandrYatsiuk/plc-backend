@@ -56,7 +56,7 @@ export class UsersController extends BaseController {
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const data = request.query;
+        const data = request.params;
         this.model.findOne(data)
             .then(user => {
                 if (user) {

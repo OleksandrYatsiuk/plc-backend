@@ -5,6 +5,7 @@ import { Course } from '../../interfaces/index';
 const schema = new mongoose.Schema({
     id: mongoose.Schema.Types.ObjectId,
     name: { type: String, required: true },
+    description: { type: String },
     status: { type: Number, default: 0 },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
