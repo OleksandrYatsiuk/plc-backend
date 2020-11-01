@@ -2,13 +2,14 @@ import * as express from 'express';
 import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/lessons.schema';
+import courseModel from './schemas/courses.schema';
 import { Lesson } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions';
 
 export class LessonsController extends BaseController {
     public path = '/lessons';
     public model: mongoose.PaginateModel<Lesson & mongoose.Document>;
-
+    public courseModel = courseModel;
     constructor() {
         super();
         this.initializeRoutes();
@@ -30,6 +31,8 @@ export class LessonsController extends BaseController {
                     this.model.create(data)
                         .then(user => response.status(200).json({ result: this.parseModel(user) }))
                         .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+                } else {
+                    next(new UnprocessableEntityException([{ field: 'name', message: `Lesson "${data.name}" is already exist.` }]))
                 }
             })
     };

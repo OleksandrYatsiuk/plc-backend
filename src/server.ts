@@ -1,7 +1,10 @@
 import { PagesController } from './controllers/pages.controller';
 import App from './app';
 import 'dotenv/config';
-import { CoursesController, LessonsController, MessagesController, PaymentsController, UsersController } from './controllers';
+import { CoursesController, 
+	LessonsController, MessagesController,
+	 PaymentsController, StudyProgressController, 
+	 UsersController } from './controllers';
 
 const app = new App(
 	[
@@ -10,7 +13,8 @@ const app = new App(
 		new CoursesController(),
 		new LessonsController(),
 		new MessagesController(),
-		new PagesController()
+		new PagesController(),
+		new StudyProgressController()
 	],
 	+process.env.PORT,
 	'/v1'

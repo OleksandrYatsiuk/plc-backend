@@ -18,6 +18,7 @@ export class UsersController extends BaseController {
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}/register`, this.register);
+        this.router.post(`${this.path}/start`, this.start);
         this.router.patch(`${this.path}/current`, this.update);
         this.router.get(`${this.path}/user`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
@@ -72,6 +73,14 @@ export class UsersController extends BaseController {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
             .then(user => response.status(204).json())
+            .catch(err => response.status(422).json({ result: err.message || err }));
+    }
+
+    private start = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const param = request.params
+        const { lessonId } = request.body
+        this.model.findOneAndUpdate(param, { $push: { lessons: lessonId } },)
+            .then(user => response.status(200).json({ result: {} }))
             .catch(err => response.status(422).json({ result: err.message || err }));
     }
 
