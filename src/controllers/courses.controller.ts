@@ -18,6 +18,7 @@ export class CoursesController extends BaseController {
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}`, this.create);
+        this.router.patch(`${this.path}`, this.update);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
@@ -44,6 +45,14 @@ export class CoursesController extends BaseController {
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         this.model.findById(id)
+            .then(course => response.status(200).json({ result: this.parseModel(course) }))
+            .catch(err => next(new NotFoundException('Course')));
+    }
+
+    private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { id } = request.params;
+        const data = request.body;
+        this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
             .then(course => response.status(200).json({ result: this.parseModel(course) }))
             .catch(err => next(new NotFoundException('Course')));
     }
