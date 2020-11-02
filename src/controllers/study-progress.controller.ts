@@ -5,7 +5,7 @@ import BaseController from './base.controller';
 import model from './schemas/study-progress.schema';
 import lessonsModel from './schemas/lessons.schema';
 import { IStudyProgress } from '../interfaces/index';
-import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
+import { HttpException, NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import * as e from 'express';
 
 export class StudyProgressController extends BaseController {
@@ -26,16 +26,18 @@ export class StudyProgressController extends BaseController {
     }
 
 
-    private progress = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
+    private progress = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const { id } = request.params;
-        const courses = await this.model.find({ userId: id }).distinct('courseId');
-        Promise.all(courses.map(course => {
-            return this.model.find({ userId: id, courseId: course })
-                .populate('courseId', 'name').populate('lessonId', 'name')
-                .sort({ courseId: 'asc', progress: 'desc' })
-        }))
+        const { courseId } = request.query;
+        const filter = { userId: id };
+        if (courseId) {
+            filter['courseId'] = courseId;
+        }
+        this.model.find(filter)
+            .populate('courseId', 'name').populate('lessonId', 'name')
+            .sort({ courseId: 'asc', progress: 'desc' })
             .then(result => response.status(200).json({ result }))
-            .catch(err => response.status(500).json({ result: err.message }));
+            .catch(err => next(new HttpException(500, err)));
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
