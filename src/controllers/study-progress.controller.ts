@@ -81,7 +81,7 @@ export class StudyProgressController extends BaseController {
 
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const id = request.params
+        const { id } = request.params
         const data: Partial<IStudyProgress> = request.body
         this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
             .then(study => response.status(200).json({ result: this.parseModel(study) }))
