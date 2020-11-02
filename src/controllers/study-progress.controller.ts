@@ -6,6 +6,7 @@ import model from './schemas/study-progress.schema';
 import lessonsModel from './schemas/lessons.schema';
 import { IStudyProgress } from '../interfaces/index';
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
+import * as e from 'express';
 
 export class StudyProgressController extends BaseController {
     public path = '/study-progress';
@@ -27,9 +28,14 @@ export class StudyProgressController extends BaseController {
 
     private progress = async (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const { id } = request.params;
-        this.model.find({ userId: id }).populate('courseId', 'name').populate('lessonId', 'name')
-            .sort({ courseId: 'asc', progress: 'desc' })
-            .then(result => response.status(200).json({ result }));
+        const courses = await this.model.find({ userId: id }).distinct('courseId');
+        Promise.all(courses.map(course => {
+            return this.model.find({ userId: id, courseId: course })
+                .populate('courseId', 'name').populate('lessonId', 'name')
+                .sort({ courseId: 'asc', progress: 'desc' })
+        }))
+            .then(result => response.status(200).json({ result }))
+            .catch(err => response.status(500).json({ result: err.message }));
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
