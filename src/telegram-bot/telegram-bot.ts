@@ -1,3 +1,4 @@
+import { User } from './../interfaces/users.interface';
 import Telegraf from 'telegraf';
 import { Markup, Extra, Stage, session, BaseScene } from 'telegraf';
 const { leave } = Stage;
@@ -10,10 +11,11 @@ const file = require('../../data.json');
 export const bot = new Telegraf(process.env.BOT_TOKEN);
 // bot.use(Telegraf.log())
 const link = 'https://lesson-frontend.herokuapp.com';
+let USER: User;
 
-const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
+// const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
 
-// const apiUrl = 'http://localhost:5000/api/v1';
+const apiUrl = 'http://localhost:5000/api/v1';
 
 bot.telegram.deleteWebhook()
     .then(success => {
@@ -149,7 +151,6 @@ function fetchFile(msg: Message, cb: Function): void {
         getFileLink(msg.photo[0].file_id)
             .then(link => cb({ type: EContentTypes.photo, link: link, text: msg.caption }));
     } else {
-        console.log(111)
         cb({ type: EContentTypes.text, link: null, text: msg.text })
     }
 }

@@ -4,6 +4,7 @@ import * as mongoose from 'mongoose';
 import axios from 'axios';
 import BaseController from "./base.controller";
 import model from './schemas/messages.schema';
+import studyModel from './schemas/study-progress.schema';
 import { Messages } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import * as multer from 'multer';
@@ -13,6 +14,7 @@ export class MessagesController extends BaseController {
     public url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/`;
     public path = '/messages';
     public model: mongoose.PaginateModel<Messages & mongoose.Document>;
+    public studyModel = studyModel;
     public http = axios;
     public upload = multer({ dest: 'uploads/', preservePath: true })
     constructor() {
@@ -31,9 +33,15 @@ export class MessagesController extends BaseController {
     }
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
-        this.model.create(data)
-            .then(message => response.status(200).json({ result: this.parseModel(message) }))
-            .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+
+        this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() }, { new: true })
+            .then(res => {
+                console.log(res);
+                this.model.create(data)
+                    .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                    .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+            })
+            .catch(err => response.status(500).json({ result: err.message }))
     };
 
 
@@ -42,13 +50,15 @@ export class MessagesController extends BaseController {
         const queryParam = JSON.parse(JSON.stringify(data));
         delete queryParam['page'];
         delete queryParam['limit'];
+
         this.model.paginate(queryParam, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) =>
+            .then(({ docs, total, limit, page, pages }) => {
                 response.status(200).json({
                     result: docs.map(course => this.parseModel(course)), pagination: {
                         page, limit, total, pages
                     }
-                }))
+                })
+            })
             .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
     }
 

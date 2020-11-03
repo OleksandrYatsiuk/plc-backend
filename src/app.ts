@@ -46,8 +46,8 @@ export default class App {
 	public listen() {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
-			// require('./telegram-bot/telegram-bot');
-			// sendRequest()
+			require('./telegram-bot/telegram-bot');
+			sendRequest()
 		});
 	}
 

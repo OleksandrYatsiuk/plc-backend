@@ -46,10 +46,6 @@ export class StudyProgressController extends BaseController {
         delete queryParam['page'];
         delete queryParam['limit'];
 
-        this.model.find(queryParam).populate('courseId', 'name')
-            .populate('userId')
-            .populate('lessonId', 'name')
-            .then(result => console.log(result))
         this.model.paginate(queryParam, { page: +data.page || 1, limit: +data.limit || 20 })
             .then(({ docs, total, limit, page, pages }) => {
                 response.status(200).json({ result: docs.map(study => this.parseModel(study)) });
@@ -58,14 +54,14 @@ export class StudyProgressController extends BaseController {
     }
 
     private add = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const { courseId, userId }: Partial<IStudyProgress> = request.body;
+        const { courseId, userId, chat_id }: Partial<IStudyProgress> = request.body;
 
         this.model.exists({ userId, courseId }).then(exist => {
             if (!exist) {
                 this.lessonsModel.find({ courseId })
                     .then(lessons => {
                         if (lessons.length > 0) {
-                            const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId }))
+                            const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId, chat_id }))
                             this.model.insertMany(data)
                                 .then(result => response.status(200).json({ result }))
                                 .catch(err => response.status(422).json({ result: err.message || err }));
