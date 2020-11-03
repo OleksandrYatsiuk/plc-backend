@@ -13,9 +13,9 @@ export const bot = new Telegraf(process.env.BOT_TOKEN);
 const link = 'https://lesson-frontend.herokuapp.com';
 let USER: User;
 
-// const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
+const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
 
-const apiUrl = 'http://localhost:5000/api/v1';
+// const apiUrl = 'http://localhost:5000/api/v1';
 
 bot.telegram.deleteWebhook()
     .then(success => {
@@ -115,7 +115,6 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                     .catch(err => console.error(err));
             })
         })
-
 
         courses_lesson.hears('Завершити', leave())
 
