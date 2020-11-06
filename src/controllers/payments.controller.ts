@@ -23,10 +23,11 @@ export class PaymentsController extends BaseController {
 
     private initializeRoutes() {
         this.router.post(`${this.path}`, this.generatePayment);
+        this.router.post(`${this.path}/status`, this.checkPayment);
     }
 
     private generatePayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const data:Payment = request.body;
+        const data: Payment = request.body;
         const payment = this.payment.cnb_form({
             ...data,
             action: 'pay',
@@ -34,7 +35,19 @@ export class PaymentsController extends BaseController {
             version: '3'
         });
         response.status(200).json({ result: payment });
-        // code200(response, payment);
+    };
+
+    private checkPayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const { order_id } = request.params
+        this.payment.check('request', { order_id, version: '3', action: 'status' }, (body) => {
+            if (body.status == 'error') {
+                response.status(422).json({ result: body.err_description })
+            } else {
+                response.status(200).json({ result: body })
+            }
+        }, (err, response) => {
+            response.status(422).json({ result: err.err })
+        })
     };
 
 

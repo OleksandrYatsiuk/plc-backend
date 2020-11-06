@@ -7,7 +7,7 @@ export default function errorMiddleware(
     response: Response,
     next: NextFunction
 ) {
-
+    console.log(error)
     const code = error.code || 500;
     const message = error.message || 'Internal Server Error';
     if (code == 404) {
@@ -25,6 +25,7 @@ export default function errorMiddleware(
             result: message
         })
     } else {
+       
         response.status(500).json({
             code: 500,
             status: 'error',
