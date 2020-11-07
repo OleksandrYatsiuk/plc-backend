@@ -1,95 +1,66 @@
-var crypto = require('crypto');
-import axios from 'axios';
+import { Payment, EPaymentAction, PaymentForm } from './../interfaces/payments.interface';
+import * as crypto from 'crypto';
 import * as request from 'request';
+
 export class LiqPayService {
     public host = 'https://www.liqpay.ua/api/';
-    public = process.env.PUBLIC_KEY;
-    private = process.env.PRIVATE_KEY;
-    constructor() {
+    public_key = process.env.PUBLIC_KEY;
+    private_key = process.env.PRIVATE_KEY;
+    constructor() { }
+
+
+    public cnb_form(params: Payment): PaymentForm {
+        return this.cnb_object(params, EPaymentAction.PAY)
     }
 
-    private cnb_signature(params) {
-        params = this.cnb_params(params);
-        var data = Buffer.from(JSON.stringify(params)).toString('base64');
-        return this.str_to_sign(this.private + data + this.private);
-    }
-    private str_to_sign(str) {
+    public check(params: Partial<Payment>, cb: Function, e: Function): void {
+        const { data, signature } = this.cnb_object(params, EPaymentAction.STATUS);
+        request.post(`${this.host}request`, { form: { data, signature } }, function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                cb(JSON.parse(body))
+            } else {
+                e(error, response);
+            }
+        }
+        );
+    };
+
+    private str_to_sign(str: string): string {
         const sha1 = crypto.createHash('sha1');
         sha1.update(str);
         return sha1.digest('base64');
     };
 
-    private cnb_params(params) {
+    private cnb_params(params: Partial<Payment>, type: EPaymentAction): Partial<Payment> {
 
-        params.public_key = this.public;
-        // if (!params.version)
-        //     throw new Error('version is null');
-        // if (!params.amount)
-        //     throw new Error('amount is null');
-        // if (!params.currency)
-        //     throw new Error('currency is null');
-        // if (!params.description)
-        //     throw new Error('description is null');
-
-        return params;
-    };
-
-    public cnb_object = function (params) {
-
-        var language = "ru";
-        if (params.language)
-            language = params.language;
-
-        params = this.cnb_params(params);
-        var data = Buffer.from(JSON.stringify(params)).toString('base64');
-        var signature = this.str_to_sign(this.private + data + this.private);
-
-        return { data: data, signature: signature };
-    };
-
-    public cnb_form(params) {
-
-        var language = "ru";
-        if (params.language)
-            language = params.language;
-
-        params = this.cnb_params(params);
-        var data = Buffer.from(JSON.stringify(params)).toString('base64');
-        var signature = this.str_to_sign(this.private + data + this.private);
-
-        return { data, signature };
-
-    }
-
-    private api(path, params) {
-
+        params.public_key = this.public_key;
+        if (!params.language)
+            params.language = 'ru';
         if (!params.version)
-            throw new Error('version is null');
-
-        params.public_key = this.public;
-        var data = new Buffer(JSON.stringify(params)).toString('base64');
-        var signature = this.str_to_sign(this.private + data + this.private);
-
-        // request.post(this.host + path, { form: { data: data, signature: signature } }, (error, response) => {
-        // })
-    }
-    public check(path, params, callback, callbackerr): void {
-
-        if (!params.version)
-            throw new Error('version is null');
-
-        params.public_key = this.public;
-        var data = new Buffer(JSON.stringify(params)).toString('base64');
-        var signature = this.str_to_sign(this.private + data + this.private);
-
-        request.post(this.host + path, { form: { data, signature } }, function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-                callback(JSON.parse(body))
-            } else {
-                callbackerr(error, response);
-            }
+            params.version = '3'
+        if (!params.action)
+            params.action = type
+        switch (type) {
+            case EPaymentAction.PAY:
+                if (!params.currency)
+                    params.currency = 'UAH'
+                if (!params.amount)
+                    throw new Error('Amount can not be blank');
+                if (!params.description)
+                    throw new Error('Description can not be blank');
+                return params;
+            case EPaymentAction.STATUS:
+                if (!params.order_id)
+                    throw new Error('Order Id can not be blank');
+                return params;
         }
-        );
+    };
+
+    private cnb_object(params: Partial<Payment>, type: EPaymentAction): PaymentForm {
+        params = this.cnb_params(params, type);
+        const data = Buffer.from(JSON.stringify(params)).toString('base64');
+        const signature = this.str_to_sign(this.private_key + data + this.private_key);
+        return { data, signature };
     };
 };
 

@@ -1,16 +1,8 @@
 import * as express from 'express';
+import { Payment } from 'interfaces/payments.interface';
 import { LiqPayService } from '../services/liqpay.service';
 import BaseController from "./base.controller";
 // import { code200 } from "../../middleware";
-
-export interface Payment {
-    action?: string;
-    amount: number | string;
-    currency?: string;
-    description: string;
-    order_id: string;
-    version?: string;
-}
 
 export class PaymentsController extends BaseController {
     public path = '/payments';
@@ -23,28 +15,24 @@ export class PaymentsController extends BaseController {
 
     private initializeRoutes() {
         this.router.post(`${this.path}`, this.generatePayment);
-        this.router.post(`${this.path}/status`, this.checkPayment);
+        this.router.post(`${this.path}/:id`, this.checkPayment);
+        this.router.post(`${this.path}/:id/status`, this.checkPaymentStatus);
     }
 
     private generatePayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const data: Payment = request.body;
-        const payment = this.payment.cnb_form({
-            ...data,
-            action: 'pay',
-            currency: 'UAH',
-            version: '3'
-        });
-        response.status(200).json({ result: payment });
+        const body: Payment = request.body;
+        const { data, signature } = this.payment.cnb_form(body);
+        response.status(200).json({ result: `https://www.liqpay.ua/api/3/checkout?data=${data}&signature=${signature}` });
     };
 
     private checkPayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
-        const { order_id } = request.params
-        this.payment.check('request', { order_id, version: '3', action: 'status' }, (body) => {
-            if (body.status == 'error') {
-                response.status(422).json({ result: body.err_description })
-            } else {
-                response.status(200).json({ result: body })
-            }
+        const { id } = request.params;
+        response.redirect(301, `${process.env.FRONTEND_URL}/payment/${id}`);
+    };
+    private checkPaymentStatus = (request: express.Request, response: express.Response, next: express.NextFunction) => {
+        const { id } = request.params
+        this.payment.check({ order_id: id }, (body) => {
+            response.status(200).json({ result: body })
         }, (err, response) => {
             response.status(422).json({ result: err.err })
         })
