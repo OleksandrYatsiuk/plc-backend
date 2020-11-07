@@ -3,7 +3,8 @@ import * as mongoose from 'mongoose';
 export interface Course extends mongoose.Document {
     readonly id: string;
     name: string;
-    status?: number;
+    status?: ECourseStatus;
+    price?: number;
     description?: string;
     createdAt: number;
     updatedAt: number;
@@ -14,7 +15,13 @@ export interface Lesson extends mongoose.Document {
     context?: string;
     file?: File;
     courseId: string;
+    free?: boolean;
     status?: number;
     createdAt: number;
     updatedAt: number;
-} 
+}
+
+export enum ECourseStatus {
+    DRAFT = 1,
+    PUBLISHED = 2
+}

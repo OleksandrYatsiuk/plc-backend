@@ -1,3 +1,4 @@
+import { ECourseStatus } from './../../interfaces/courses.interface';
 import * as mongoose from 'mongoose';
 import * as  mongoosePaginate from 'mongoose-paginate';
 import { Course } from '../../interfaces/index';
@@ -6,7 +7,8 @@ const schema = new mongoose.Schema({
     id: mongoose.Schema.Types.ObjectId,
     name: { type: String, required: true },
     description: { type: String },
-    status: { type: Number, default: 0 },
+    price: { type: Number, default: 0 },
+    status: { type: Number, default: ECourseStatus.DRAFT, enum: [ECourseStatus.DRAFT, ECourseStatus.PUBLISHED] },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
 }, { versionKey: false });
