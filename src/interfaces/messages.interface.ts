@@ -25,6 +25,7 @@ export interface MessageOptions {
     type: EContentTypes;
     link: string | null;
     text: string | null;
+    fileId:string
 }
 
 export enum EContentTypes {

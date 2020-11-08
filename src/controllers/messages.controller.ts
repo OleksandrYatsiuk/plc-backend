@@ -30,13 +30,13 @@ export class MessagesController extends BaseController {
         this.router.post(`${this.path}/message`, this.upload.any(), this.sendToUser);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
+        this.router.post(`${this.path}/refresh`, this.refreshFile);
     }
+
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
-
         this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() }, { new: true })
             .then(res => {
-                console.log(res);
                 this.model.create(data)
                     .then(message => response.status(200).json({ result: this.parseModel(message) }))
                     .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
@@ -66,31 +66,50 @@ export class MessagesController extends BaseController {
         const { id } = request.params;
         this.model.findById(id)
             .then(course => response.status(200).json({ result: this.parseModel(course) }))
-            .catch(err => next(new NotFoundException('Course')));
+            .catch(err => next(new NotFoundException('Message')));
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
-            .then(() => response.status(204).json())
-            .catch(() => next(new NotFoundException('Course')));
+            .then(message => {
+                bot.telegram.deleteMessage(message.chat_id, message.message.id)
+                    .then(() => response.status(204).json())
+                    .catch(err => response.status(500).json({ result: err.message }))
+            })
+            .catch(() => next(new NotFoundException('Message')));
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
-        if (!msg.message.content.link) {
-            this.model.create(msg)
-                .then(message => response.status(200).json({ result: this.parseModel(message) }))
-                .catch(err => next(new Error(err.message)))
-        } else {
-            bot.telegram.getFileLink(msg.message.content.link)
-                .then(link => {
-                    msg.message.content.link = link;
+        this.studyModel.findOneAndUpdate({ lessonId: msg.lessonId, chat_id: msg.chat_id }, { isAnswered: true, updatedAt: Date.now() }, { new: true })
+            .then(res => {
+                if (!msg.message.content.link) {
                     this.model.create(msg)
                         .then(message => response.status(200).json({ result: this.parseModel(message) }))
                         .catch(err => next(new Error(err.message)))
-                })
-                .catch(err => next(new Error(err.message)))
-        }
+                } else {
+                    bot.telegram.getFileLink(msg.message.content.link)
+                        .then(link => {
+                            msg.message.content.link = link;
+                            this.model.create(msg)
+                                .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                                .catch(err => next(new Error(err.message)))
+                        })
+                        .catch(err => next(new Error(err.message)))
+                }
+            })
+            .catch(err => response.status(500).json({ result: err.message }))
+    }
+    private refreshFile = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const msg: Messages['message'] = request.body;
+        bot.telegram.getFileLink(msg.content?.fileId)
+            .then(link => {
+                msg.content.link = link;
+                this.model.findByIdAndUpdate(msg.id, { $set: msg }, { new: true })
+                    .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                    .catch(err => next(new Error(err.message)))
+            })
+            .catch(err => next(new Error(err.message)))
     }
 
     private parseModel(message: Messages) {

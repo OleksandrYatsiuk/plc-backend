@@ -13,7 +13,8 @@ const schema = new mongoose.Schema({
         content: {
             type: { type: String, required: true, enum: [EContentTypes.file, EContentTypes.photo, EContentTypes.text] },
             link: { type: String, default: null },
-            text: { type: String, default: null }
+            text: { type: String, default: null },
+            fileId: { type: String, default: null }
         }
     },
     createdAt: { type: Number, default: Date.now() },

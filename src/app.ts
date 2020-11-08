@@ -21,7 +21,6 @@ export default class App {
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
 		this.connectToTheDatabase();
-		this.app.use(sendRequest)
 	}
 	/**
 	* Headers (CORS)
@@ -47,7 +46,7 @@ export default class App {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
 			require('./telegram-bot/telegram-bot');
-			// sendRequest();
+			sendRequest();
 		});
 	}
 

@@ -10,7 +10,7 @@ const schema = new mongoose.Schema({
     courseId: { type: String, ref: 'courses', required: true },
     file: { type: String, default: '' },
     free: { type: Boolean, default: false },
-    status: { type: Number, default: ECourseStatus.DRAFT, enum: [ECourseStatus.DRAFT, ECourseStatus.PUBLISHED] },
+    status: { type: Number, default: ECourseStatus.DRAFT },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
 }, { versionKey: false });

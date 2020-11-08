@@ -18,7 +18,7 @@ export class CoursesController extends BaseController {
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}`, this.create);
-        this.router.patch(`${this.path}`, this.update);
+        this.router.patch(`${this.path}/:id`, this.update);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }

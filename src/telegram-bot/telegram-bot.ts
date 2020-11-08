@@ -1,4 +1,3 @@
-import { User } from './../interfaces/users.interface';
 import Telegraf from 'telegraf';
 import { Markup, Extra, Stage, session, BaseScene } from 'telegraf';
 const { leave } = Stage;
@@ -7,11 +6,8 @@ import axios from 'axios';
 import { SceneContextMessageUpdate } from 'telegraf/typings/stage';
 import { Message } from 'telegraf/typings/telegram-types';
 const file = require('../../data.json');
-// let bot = new Telegraf(process.env.BOT_TOKEN);
 export const bot = new Telegraf(process.env.BOT_TOKEN);
-// bot.use(Telegraf.log())
 const link = 'https://lesson-frontend.herokuapp.com';
-let USER: User;
 
 const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
 
@@ -111,7 +107,7 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                     },
                 }
                 axios.post(apiUrl + '/messages', data)
-                    .then(result => console.log(result.data))
+                    .then(result => { })
                     .catch(err => console.error(err));
             })
         })
@@ -145,12 +141,12 @@ bot.action(/course/, (ctx: any) => {
 function fetchFile(msg: Message, cb: Function): void {
     if (msg.document) {
         getFileLink(msg.document.file_id)
-            .then(link => cb({ type: EContentTypes.file, link: link, text: msg.caption }));
+            .then(link => cb({ type: EContentTypes.file, link: link, text: msg.caption, fileId: msg.document.file_id }));
     } else if (msg.photo) {
         getFileLink(msg.photo[0].file_id)
-            .then(link => cb({ type: EContentTypes.photo, link: link, text: msg.caption }));
+            .then(link => cb({ type: EContentTypes.photo, link: link, text: msg.caption, fileId: msg.photo[0].file_id }));
     } else {
-        cb({ type: EContentTypes.text, link: null, text: msg.text })
+        cb({ type: EContentTypes.text, link: null, text: msg.text, fileId: null })
     }
 }
 

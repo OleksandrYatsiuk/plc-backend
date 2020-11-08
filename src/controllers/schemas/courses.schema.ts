@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
     name: { type: String, required: true },
     description: { type: String },
     price: { type: Number, default: 0 },
-    status: { type: Number, default: ECourseStatus.DRAFT, enum: [ECourseStatus.DRAFT, ECourseStatus.PUBLISHED] },
+    status: { type: Number, default: ECourseStatus.DRAFT },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
 }, { versionKey: false });
