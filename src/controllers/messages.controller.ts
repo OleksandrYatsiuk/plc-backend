@@ -91,6 +91,7 @@ export class MessagesController extends BaseController {
                     bot.telegram.getFileLink(msg.message.content.link)
                         .then(link => {
                             msg.message.content.link = link;
+                            msg.message.content.fileId = msg.message.content.link;
                             this.model.create(msg)
                                 .then(message => response.status(200).json({ result: this.parseModel(message) }))
                                 .catch(err => next(new Error(err.message)))
