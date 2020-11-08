@@ -29,7 +29,7 @@ export class MessagesController extends BaseController {
         this.router.post(`${this.path}`, this.save);
         this.router.post(`${this.path}/message`, this.upload.any(), this.sendToUser);
         this.router.get(`${this.path}/:id`, this.geItem);
-        this.router.post(`${this.path}/:id`, this.removeItem);
+        this.router.delete(`${this.path}/:id`, this.removeItem);
         this.router.post(`${this.path}/refresh`, this.refreshFile);
     }
 
