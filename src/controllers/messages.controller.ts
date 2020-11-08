@@ -6,7 +6,7 @@ import BaseController from "./base.controller";
 import model from './schemas/messages.schema';
 import studyModel from './schemas/study-progress.schema';
 import { Messages } from '../interfaces/index'
-import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
+import { HttpException, NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import * as multer from 'multer';
 import { bot } from '../telegram-bot/telegram-bot'
 
@@ -71,14 +71,15 @@ export class MessagesController extends BaseController {
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
-        const msg: CustomMessage = request.body;
-        bot.telegram.deleteMessage(msg.chat_id, msg.message.id)
-            .then(res => {
-                this.model.findByIdAndDelete(id)
-                    .then(() => response.status(204).json())
-                    .catch(err => next(new NotFoundException('Message')));
-            })
-            .catch(err => response.status(500).json({ result: err.message }))
+        this.model.findById(id).then(msg => {
+            bot.telegram.deleteMessage(msg.chat_id, msg.message.id)
+                .then(res => {
+                    this.model.findByIdAndDelete(id)
+                        .then(() => response.status(204).json());
+                })
+                .catch(err => next(new HttpException(500, err)));
+        })
+            .catch(err => next(new NotFoundException('Message')));
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
