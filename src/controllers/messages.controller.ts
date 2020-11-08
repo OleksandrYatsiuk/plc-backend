@@ -77,7 +77,10 @@ export class MessagesController extends BaseController {
                     this.model.findByIdAndDelete(id)
                         .then(() => response.status(204).json());
                 })
-                .catch(err => next(new HttpException(500, err)));
+                .catch(err => {
+                    this.model.findByIdAndDelete(id)
+                        .then(() => response.status(200).json({ code: 200, result: 'Повідомлення було видалене з системи, але воно залишається в Telegram!' }));
+                });
         })
             .catch(err => next(new NotFoundException('Message')));
     }
