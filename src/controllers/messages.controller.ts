@@ -29,7 +29,7 @@ export class MessagesController extends BaseController {
         this.router.post(`${this.path}`, this.save);
         this.router.post(`${this.path}/message`, this.upload.any(), this.sendToUser);
         this.router.get(`${this.path}/:id`, this.geItem);
-        this.router.delete(`${this.path}/:id`, this.removeItem);
+        this.router.post(`${this.path}/:id`, this.removeItem);
         this.router.post(`${this.path}/refresh`, this.refreshFile);
     }
 
@@ -70,14 +70,15 @@ export class MessagesController extends BaseController {
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const { id } = request.params
-        this.model.findByIdAndDelete(id)
-            .then(message => {
-                bot.telegram.deleteMessage(message.chat_id, message.message.id)
+        const { id } = request.params;
+        const msg: CustomMessage = request.body;
+        bot.telegram.deleteMessage(msg.chat_id, msg.message.id)
+            .then(res => {
+                this.model.findByIdAndDelete(id)
                     .then(() => response.status(204).json())
-                    .catch(err => response.status(500).json({ result: err.message }))
+                    .catch(err => next(new NotFoundException('Message')));
             })
-            .catch(() => next(new NotFoundException('Message')));
+            .catch(err => response.status(500).json({ result: err.message }))
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
