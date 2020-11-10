@@ -6,7 +6,7 @@ import BaseController from "./base.controller";
 import model from './schemas/messages.schema';
 import studyModel from './schemas/study-progress.schema';
 import { Messages } from '../interfaces/index'
-import { HttpException, NotFoundException, UnprocessableEntityException } from '../exceptions/index';
+import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import * as multer from 'multer';
 import { bot } from '../telegram-bot/telegram-bot'
 
@@ -95,8 +95,8 @@ export class MessagesController extends BaseController {
                 } else {
                     bot.telegram.getFileLink(msg.message.content.link)
                         .then(link => {
-                            msg.message.content.link = link;
                             msg.message.content.fileId = msg.message.content.link;
+                            msg.message.content.link = link;
                             this.model.create(msg)
                                 .then(message => response.status(200).json({ result: this.parseModel(message) }))
                                 .catch(err => next(new Error(err.message)))
@@ -107,11 +107,11 @@ export class MessagesController extends BaseController {
             .catch(err => response.status(500).json({ result: err.message }))
     }
     private refreshFile = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const msg: Messages['message'] = request.body;
-        bot.telegram.getFileLink(msg.content?.fileId)
+        const { message, id }: Messages = request.body;
+        bot.telegram.getFileLink(message.content?.fileId)
             .then(link => {
-                msg.content.link = link;
-                this.model.findByIdAndUpdate(msg.id, { $set: msg }, { new: true })
+                message.content.link = link;
+                this.model.findByIdAndUpdate(id, { $set: { message } }, { new: true })
                     .then(message => response.status(200).json({ result: this.parseModel(message) }))
                     .catch(err => next(new Error(err.message)))
             })
