@@ -24,12 +24,12 @@ export class PagesController extends BaseController {
         this.model.exists({ type: data.type }).then(exist => {
             if (exist) {
                 this.model.updateOne({ type: data.type }, data)
-                    .then(page => response.status(200).json({ result: this.parseModel(page) }))
-                    .catch(err => next(new UnprocessableEntityException([{ field: 'type', message: err.message }])))
+                    .then(page => this.send200(response, this.parseModel(page)))
+                    .catch(err => next(this.send422(([{ field: 'type', message: err.message }]))))
             } else {
                 this.model.create(data)
-                    .then(page => response.status(200).json({ result: this.parseModel(page) }))
-                    .catch(err => next(new UnprocessableEntityException([{ field: 'type', message: err.message }])))
+                    .then(page => this.send200(response, this.parseModel(page)))
+                    .catch(err => next(this.send422(([{ field: 'type', message: err.message }]))))
             }
         })
 
@@ -39,8 +39,8 @@ export class PagesController extends BaseController {
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data = request.query;
         this.model.find(data)
-            .then((pages: IStaticPages[]) => response.status(200).json({ result: pages.map(page => this.parseModel(page)) }))
-            .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+            .then((pages: IStaticPages[]) => this.send200(response, pages.map(page => this.parseModel(page))))
+            .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
     }
 
     private parseModel(page: IStaticPages): Partial<IStaticPages> {

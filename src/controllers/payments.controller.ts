@@ -22,7 +22,8 @@ export class PaymentsController extends BaseController {
     private generatePayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const body: Payment = request.body;
         const { data, signature } = this.payment.cnb_form(body);
-        response.status(200).json({ result: `https://www.liqpay.ua/api/3/checkout?data=${data}&signature=${signature}` });
+        const link = `https://www.liqpay.ua/api/3/checkout?data=${data}&signature=${signature}`;
+        this.send200(response, link);
     };
 
     private checkPayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
@@ -32,9 +33,9 @@ export class PaymentsController extends BaseController {
     private checkPaymentStatus = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const { id } = request.params
         this.payment.check({ order_id: id }, (body) => {
-            response.status(200).json({ result: body })
+            this.send200(response, body)
         }, (err, response) => {
-            response.status(422).json({ result: err.err })
+            next(this.send422(err.message || err))
         })
     };
 

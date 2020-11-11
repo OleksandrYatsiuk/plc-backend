@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/courses.schema';
 import { Course } from '../interfaces/index'
-import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 
 export class CoursesController extends BaseController {
     public path = '/courses';
@@ -28,8 +27,8 @@ export class CoursesController extends BaseController {
             .then(exist => {
                 if (!exist) {
                     this.model.create(data)
-                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
-                        .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+                        .then(user => this.send200(response, this.parseModel(user)))
+                        .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
                 }
             })
     };
@@ -38,33 +37,34 @@ export class CoursesController extends BaseController {
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data = request.params;
         this.model.paginate({}, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) => response.status(200).json({ result: docs.map(course => this.parseModel(course)) }))
-            .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+            .then(({ docs, total, limit, page, pages }) => this.send200Data(response, { limit, page, pages, total },
+                docs.map(course => this.parseModel(course))))
+            .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         this.model.findById(id)
-            .then(course => response.status(200).json({ result: this.parseModel(course) }))
-            .catch(err => next(new NotFoundException('Course')));
+            .then(course => this.send200(response, this.parseModel(course)))
+            .catch(err => next(this.send404('Course')));
     }
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         const data = request.body;
         this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
-            .then(course => response.status(200).json({ result: this.parseModel(course) }))
-            .catch(err => next(new NotFoundException('Course')));
+            .then(course => this.send200(response, this.parseModel(course)))
+            .catch(err => next(this.send404('Course')))
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
-            .then(() => response.status(204).json())
-            .catch(() => next(new NotFoundException('Course')));
+            .then(() => this.send204(response))
+            .catch(err => next(this.send404('Course')))
     }
 
-    private parseModel(course: Course) {
+    private parseModel(course: Partial<Course>): Partial<Course> {
         return {
             id: course._id,
             name: course.name,

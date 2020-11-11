@@ -36,8 +36,8 @@ export class StudyProgressController extends BaseController {
         this.model.find(filter)
             .populate('courseId', 'name').populate('lessonId', 'name')
             .sort({ courseId: 'asc', progress: 'desc' })
-            .then(result => response.status(200).json({ result }))
-            .catch(err => next(new HttpException(500, err)));
+            .then(result => this.send200(response, result))
+            .catch(err => next(this.send500(err)));
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -47,10 +47,10 @@ export class StudyProgressController extends BaseController {
         delete queryParam['limit'];
 
         this.model.paginate(queryParam, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) => {
-                response.status(200).json({ result: docs.map(study => this.parseModel(study)) });
-            })
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(({ docs, total, limit, page, pages }) =>
+                this.send200Data(response, { total, limit, page, pages }, docs.map(study => this.parseModel(study)))
+            )
+            .catch(err => next(this.send422(err.message)));
     }
 
     private add = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -63,14 +63,14 @@ export class StudyProgressController extends BaseController {
                         if (lessons.length > 0) {
                             const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId, chat_id }))
                             this.model.insertMany(data)
-                                .then(result => response.status(200).json({ result }))
-                                .catch(err => response.status(422).json({ result: err.message || err }));
+                                .then(result => this.send200(response, result))
+                                .catch(err => next(this.send422(err.message || err)));
                         } else {
-                            response.status(200).json({})
+                            this.send200(response, {})
                         }
                     })
             } else {
-                response.status(422).json({ result: [{ field: 'courseId', message: 'Course is already available!' }] })
+                next(this.send422([{ field: 'courseId', message: 'Course is already available!' }]));
             }
         })
     }
@@ -80,13 +80,11 @@ export class StudyProgressController extends BaseController {
         const { id } = request.params
         const data: Partial<IStudyProgress> = request.body
         this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
-            .then(study => response.status(200).json({ result: this.parseModel(study) }))
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(study => this.send200(response, this.parseModel(study)))
+            .catch(err => next(this.send422(err.message || err)));
     }
 
-
-
-    private parseModel(study: IStudyProgress) {
+    private parseModel(study: Partial<IStudyProgress>): Partial<IStudyProgress> {
         return {
             id: study._id,
             userId: study.userId,

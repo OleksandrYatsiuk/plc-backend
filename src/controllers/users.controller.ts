@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/users.schema';
 import { User } from '../interfaces/index'
-import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 
 export class UsersController extends BaseController {
     public path = '/users';
@@ -30,11 +29,11 @@ export class UsersController extends BaseController {
             .then(exist => {
                 if (!exist) {
                     this.model.create(data)
-                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
-                        .catch(err => next(new UnprocessableEntityException([{ field: 'phone', message: err.message }])))
+                        .then(user => this.send200(response, this.parseModel(user)))
+                        .catch(err => next(this.send422([{ field: 'phone', message: err.message }])))
                 } else {
                     this.model.findOne({ phone: data.phone })
-                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
+                        .then(user => this.send200(response, this.parseModel(user)));
                 }
             })
     };
@@ -43,17 +42,17 @@ export class UsersController extends BaseController {
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: User = request.body;
         this.model.findOneAndUpdate({ phone: data.phone }, { ...data, updatedAt: Date.now() }, { new: true })
-            .then(user => response.status(200).json({ result: this.parseModel(user) }))
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(user => this.send200(response, this.parseModel(user)))
+            .catch(err => next(this.send422(err.message || err)))
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data = request.params;
         this.model.paginate({}, { page: +data.page || 1, limit: +data.limit || 20 })
             .then(({ docs, total, limit, page, pages }) => {
-                response.status(200).json({ result: docs.map(user => this.parseModel(user)) });
+                this.send200Data(response, { total, limit, page, pages }, docs.map(user => this.parseModel(user)))
             })
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .catch(err => next(this.send422(err.message || err)))
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -61,30 +60,30 @@ export class UsersController extends BaseController {
         this.model.findOne(data)
             .then(user => {
                 if (user) {
-                    response.status(200).json({ result: this.parseModel(user) })
+                    this.send200(response, this.parseModel(user))
                 } else {
-                    next(new NotFoundException('User'));
+                    next(this.send404('User'));
                 }
             })
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .catch(err => next(this.send422(err.message || err)))
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
-            .then(user => response.status(204).json())
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(user => this.send204(response))
+            .catch(err => next(this.send422(err.message || err)))
     }
 
     private start = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const param = request.params
         const { lessonId } = request.body
-        this.model.findOneAndUpdate(param, { $push: { lessons: lessonId } },)
-            .then(user => response.status(200).json({ result: {} }))
-            .catch(err => response.status(422).json({ result: err.message || err }));
+        this.model.findOneAndUpdate(param, { $push: { lessons: lessonId } })
+            .then(user => this.send200(response, null))
+            .catch(err => next(this.send422(err.message || err)))
     }
 
-    private parseModel(user: User) {
+    private parseModel(user: Partial<User>): Partial<User> {
         return {
             id: user._id,
             phone: user.phone,

@@ -29,10 +29,10 @@ export class LessonsController extends BaseController {
             .then(exist => {
                 if (!exist) {
                     this.model.create(data)
-                        .then(user => response.status(200).json({ result: this.parseModel(user) }))
-                        .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+                        .then(user => this.send200(response, this.parseModel(user)))
+                        .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
                 } else {
-                    next(new UnprocessableEntityException([{ field: 'name', message: `Lesson "${data.name}" is already exist.` }]))
+                    next(this.send422([{ field: 'name', message: `Lesson "${data.name}" is already exist.` }]))
                 }
             })
     };
@@ -41,38 +41,36 @@ export class LessonsController extends BaseController {
         let data = request.query;
         data ? data = { courseId: data.courseId } : data = {};
         this.model.paginate(data, { page: +data.page || 1, limit: +data.limit || 20 })
-            .then(({ docs, total, limit, page, pages }) => {
-                response.status(200).json({ result: docs.map(lesson => this.parseModel(lesson)) });
-            })
-            .catch(err => response.status(422).json({ result: err.message || err }));
+            .then(({ docs, total, limit, page, pages }) =>
+                this.send200Data(response, { limit, page, pages, total },
+                    docs.map(lesson => this.parseModel(lesson))))
+            .catch(err => next(this.send422(err.message)));
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         this.model.findById(id)
-            .then(lesson => {
-                response.status(200).json({ result: this.parseModel(lesson) })
-            })
-            .catch(err => next(new NotFoundException('Lesson')));
+            .then(lesson => this.send200(response, this.parseModel(lesson)))
+            .catch(err => next(this.send404('Lesson')));
     }
 
     private updateItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         const data = request.body;
         this.model.findByIdAndUpdate(id, data, { new: true })
-            .then(lesson => response.status(200).json({ result: this.parseModel(lesson) }))
-            .catch(err => next(new NotFoundException('Lesson')))
+            .then(lesson => this.send200(response, this.parseModel(lesson)))
+            .catch(err => next(this.send404('Lesson')));
 
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
         this.model.findByIdAndDelete(id)
-            .then(() => response.status(204).json())
-            .catch(err => next(new NotFoundException('Lesson')));
+            .then(() => this.send204(response))
+            .catch(err => next(this.send404('Lesson')));
     }
 
-    private parseModel(lesson: Lesson) {
+    private parseModel(lesson: Partial<Lesson>): Partial<Lesson> {
         return {
             id: lesson._id,
             name: lesson.name,
