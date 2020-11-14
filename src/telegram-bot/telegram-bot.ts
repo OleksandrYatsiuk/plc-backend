@@ -1,17 +1,12 @@
 import Telegraf from 'telegraf';
-import { Markup, Extra, Stage, session, BaseScene } from 'telegraf';
-const { leave } = Stage;
-import { Course, CustomMessage, EContentTypes, EMessageTypes, MessageOptions } from '../interfaces/index';
-import axios from 'axios';
-import { SceneContextMessageUpdate } from 'telegraf/typings/stage';
+import { Markup, Extra, Stage, session } from 'telegraf';
 import { Message } from 'telegraf/typings/telegram-types';
-const file = require('../../data.json');
+import { ApiHelperService } from './request-helper';
+import { courses_lesson } from './schenes/lesson';
+import { about, result } from './storage/texts';
+import { urls } from './storage/url';
 export const bot = new Telegraf(process.env.BOT_TOKEN);
-const link = 'https://lesson-frontend.herokuapp.com';
-
-const apiUrl = 'https://lesson-backend.herokuapp.com/api/v1';
-
-// const apiUrl = 'http://localhost:5000/api/v1';
+const backend = new ApiHelperService(urls.local.backend)
 
 bot.telegram.deleteWebhook()
     .then(success => {
@@ -23,7 +18,8 @@ bot.telegram.deleteWebhook()
 
 bot.start(ctx => {
     if (ctx['startPayload']) {
-        axios.patch(apiUrl + '/users/current', { phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id });
+        backend.updateUser({ phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id })
+            .then(response => console.log(response));
     }
     return ctx.reply('Main menu', Markup
         .keyboard([
@@ -36,15 +32,14 @@ bot.start(ctx => {
         .extra())
 })
 
-bot.hears('🔍 Про нас', (ctx): Promise<Message> => {
-    return ctx.replyWithMarkdown(file.about);
+bot.hears('🔍 Про нас', (ctx: any): Promise<Message> => {
+    return ctx.replyWithMarkdown(about);
 })
-bot.hears('☸ Результати', (ctx): Promise<Message> => {
-    return ctx.reply(file.result);
+bot.hears('☸ Результати', (ctx: any): Promise<Message> => {
+    return ctx.reply(result);
 })
-bot.hears('👨‍🎓 Курси', (ctx) => {
-    return axios.get(apiUrl + '/courses').then(result => {
-        const courses: Course[] = result.data.result;
+bot.hears('👨‍🎓 Курси', (ctx: any) => {
+    backend.courseList().then(courses => {
         return ctx.reply('Виберіть курс', Extra.HTML().markup((m) =>
             m.inlineKeyboard([
                 courses.map(course => m.callbackButton(course.name, `course:${course.id}`))
@@ -52,78 +47,16 @@ bot.hears('👨‍🎓 Курси', (ctx) => {
     })
 })
 
-bot.hears('💰 Оплата', ctx => {
+bot.hears('💰 Оплата', (ctx: any) => {
     return ctx.reply('Practical Legal Courses – школа нового формату',
         Extra.HTML().markup((m) =>
             m.inlineKeyboard([
-                m.urlButton('Оплатити', `${link}/payment?chat_id=${ctx.chat.id}&courseId=1`),
+                m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=1`),
             ])))
 });
-const courses_lesson = new BaseScene('lessons')
-courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
-
-    const courseId = ctx.match.input.split(':')[1];
-    ctx.session.data = { courseId: courseId };
-    axios.get(apiUrl + '/lessons', { params: { courseId } })
-        .then(result => {
-            const lessons = result.data.result;
-            ctx.reply('Виберіть  урок', Extra.HTML().markup((m) =>
-                m.inlineKeyboard([
-                    lessons.map(lesson => m.callbackButton(lesson.name, `lesson:${lesson.id}`))
-                ])))
-        })
-
-    courses_lesson.action(/lesson:/, (ctx: SceneContextMessageUpdate & { session: any }) => {
-        const lessonId = ctx.match.input.split(':')[1];
-        ctx.session.data['lesson'] = lessonId;
-        axios.get(apiUrl + `/lessons/${lessonId}`).then(result => {
-            const lesson = result.data.result;
-            ctx.reply(JSON.stringify(lesson),
-                Extra.HTML().markup((m) =>
-                    m.inlineKeyboard([m.callbackButton('Далі', 'next')])
-                ))
-        })
-
-    })
-
-    courses_lesson.action('next', (ctx: SceneContextMessageUpdate & { session: any }) => {
-        ctx.reply('Ви можете вписати результати нижче:', Markup
-            .keyboard([['Завершити',]])
-            .oneTime()
-            .resize()
-            .extra())
-
-        courses_lesson.on('message', (ctx: SceneContextMessageUpdate & { session: any }) => {
-            ctx.session.data['isAddedMessage'] = true;
-            const { message } = ctx.update;
-            fetchFile(message, (result: MessageOptions) => {
-                const data: CustomMessage = {
-                    chat_id: message.chat.id,
-                    lessonId: ctx.session.data.lesson,
-                    type: EMessageTypes.user,
-                    message: {
-                        id: message.message_id,
-                        content: result
-                    },
-                }
-                axios.post(apiUrl + '/messages', data)
-                    .then(result => { })
-                    .catch(err => console.error(err));
-            })
-        })
-
-        courses_lesson.hears('Завершити', leave())
-
-        courses_lesson.leave((ctx) => {
-            ctx.reply('Ваша відповідь була прийнята. Найближчим часом буде зроблена перевірка і надісланий результат:)');
-        });
-    })
-})
-
-
 
 bot.hears('📞 Контакти', (ctx): Promise<Message> => {
-    return ctx.replyWithMarkdown(`Open: [Contacts](${link})`);
+    return ctx.replyWithMarkdown(`Open: [Contacts](${urls.prod.frontend})`);
 })
 
 const stage = new Stage([courses_lesson]);
@@ -136,20 +69,3 @@ bot.use(stage.middleware());
 bot.action(/course/, (ctx: any) => {
     return ctx.scene.enter('lessons');
 });
-
-
-function fetchFile(msg: Message, cb: Function): void {
-    if (msg.document) {
-        getFileLink(msg.document.file_id)
-            .then(link => cb({ type: EContentTypes.file, link: link, text: msg.caption, fileId: msg.document.file_id }));
-    } else if (msg.photo) {
-        getFileLink(msg.photo[0].file_id)
-            .then(link => cb({ type: EContentTypes.photo, link: link, text: msg.caption, fileId: msg.photo[0].file_id }));
-    } else {
-        cb({ type: EContentTypes.text, link: null, text: msg.text, fileId: null })
-    }
-}
-
-function getFileLink(fileId: string): Promise<string> {
-    return bot.telegram.getFileLink(fileId);
-}
