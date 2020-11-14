@@ -6,7 +6,7 @@ import { ApiHelperService } from '../../telegram-bot/request-helper';
 import { bot } from '../../telegram-bot/telegram-bot';
 import { urls } from '../../telegram-bot/storage/url';
 
-const backend = new ApiHelperService(urls.local.backend)
+const backend = new ApiHelperService(urls.prod.backend)
 export const courses_lesson = new BaseScene('lessons');
 
 courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
