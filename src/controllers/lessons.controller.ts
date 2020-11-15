@@ -4,7 +4,6 @@ import BaseController from "./base.controller";
 import model from './schemas/lessons.schema';
 import courseModel from './schemas/courses.schema';
 import { Lesson } from '../interfaces/index'
-import { NotFoundException, UnprocessableEntityException } from '../exceptions';
 
 export class LessonsController extends BaseController {
     public path = '/lessons';
@@ -39,7 +38,9 @@ export class LessonsController extends BaseController {
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         let data = request.query;
-        data ? data = { courseId: data.courseId } : data = {};
+        if (Object.keys(data).length > 0) {
+            data = { courseId: data.courseId }
+        }
         this.model.paginate(data, { page: +data.page || 1, limit: +data.limit || 20 })
             .then(({ docs, total, limit, page, pages }) =>
                 this.send200Data(response, { limit, page, pages, total },
