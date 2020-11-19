@@ -1,10 +1,11 @@
-import { PagesController } from './controllers/pages.controller';
 import App from './app';
 import 'dotenv/config';
-import { CoursesController, 
-	LessonsController, MessagesController,
-	 PaymentsController, StudyProgressController, 
-	 UsersController } from './controllers';
+import {
+	CoursesController, LessonsController, MessagesController,
+	PagesController, PaymentsController, StudyProgressController, UsersController
+} from './controllers';
+
+
 
 const app = new App(
 	[

@@ -1,5 +1,4 @@
-import { EStudyStatus, IStudyProgress } from './../../interfaces/study.interface';
-import { EStudyProgress } from '../../interfaces';
+import { IStudyProgress, EStudyProgress } from './../../interfaces/study.interface';
 import * as mongoose from 'mongoose';
 import * as  mongoosePaginate from 'mongoose-paginate';
 
@@ -10,7 +9,7 @@ const study = new mongoose.Schema({
     lessonId: { type: mongoose.Schema.Types.ObjectId, ref: 'lessons' },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'courses', required: true },
     progress: { type: Number, default: EStudyProgress.NOT_STARTED },
-    status: { type: Number, default: EStudyStatus.DISABLED },
+    status: { type: Number, default: false },
     chat_id: { type: Number, required: true },
     isAnswered: { type: Boolean, default: true },
     createdAt: { type: Number, default: Date.now() },

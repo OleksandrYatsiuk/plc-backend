@@ -58,7 +58,7 @@ export class LessonsController extends BaseController {
     private updateItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
         const data = request.body;
-        this.model.findByIdAndUpdate(id, data, { new: true })
+        this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
             .then(lesson => this.send200(response, this.parseModel(lesson)))
             .catch(err => next(this.send404('Lesson')));
 

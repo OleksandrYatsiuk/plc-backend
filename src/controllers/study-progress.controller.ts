@@ -1,12 +1,9 @@
-import { IStaticPages } from './../interfaces/pages.interface';
 import * as express from 'express';
 import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/study-progress.schema';
 import lessonsModel from './schemas/lessons.schema';
 import { IStudyProgress } from '../interfaces/index';
-import { HttpException, NotFoundException, UnprocessableEntityException } from '../exceptions/index';
-import * as e from 'express';
 
 export class StudyProgressController extends BaseController {
     public path = '/study-progress';
