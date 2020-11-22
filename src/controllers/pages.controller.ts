@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/pages.schema';
 import { IStaticPages } from '../interfaces/index'
-import { UnprocessableEntityException } from '../exceptions/index';
 
 export class PagesController extends BaseController {
     public path = '/static-pages';

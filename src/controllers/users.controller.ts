@@ -91,6 +91,7 @@ export class UsersController extends BaseController {
             lastName: user.lastName,
             email: user.email,
             chat_id: user.chat_id,
+            haveMessages: user.haveMessages,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         }

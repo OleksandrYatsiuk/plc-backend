@@ -1,0 +1,31 @@
+{
+  "allOf": [
+    {
+      "type": "object",
+      "required": ["name"],
+
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "5e8b2adb9e2aeb0024bf7627",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "example": "Курс"
+        },
+        "description": {
+          "type": "string",
+          "example": "Some text"
+        },
+        "price": {
+          "type": "integer",
+          "example": 100
+        }
+      }
+    },
+    {
+      "$ref": "time.json"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import axios from 'axios';
 import BaseController from "./base.controller";
 import model from './schemas/messages.schema';
 import studyModel from './schemas/study-progress.schema';
+import userModel from './schemas/users.schema';
 import { Messages } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
 import * as multer from 'multer';
@@ -15,6 +16,7 @@ export class MessagesController extends BaseController {
     public path = '/messages';
     public model: mongoose.PaginateModel<Messages & mongoose.Document>;
     public studyModel = studyModel;
+    public userModel = userModel;
     public http = axios;
     public upload = multer({ dest: 'uploads/', preservePath: true })
     constructor() {
@@ -35,7 +37,8 @@ export class MessagesController extends BaseController {
 
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
-        this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() }, { new: true })
+        this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() })
+        this.userModel.findOneAndUpdate({ chat_id: data.chat_id }, { haveMessages: true, updatedAt: Date.now() }, { new: true })
             .then(res => {
                 this.model.create(data)
                     .then(message => response.status(200).json({ result: this.parseModel(message) }))

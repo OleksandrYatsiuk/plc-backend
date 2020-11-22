@@ -5,6 +5,8 @@ import { Controller } from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import { NotFoundException } from './exceptions';
 import { sendRequest } from './request-interval';
+const swaggerDocument = require('./swagger/swagger.json');
+import * as swaggerUi from 'swagger-ui-express';
 export default class App {
 	public app: express.Application;
 	public port: number;
@@ -57,11 +59,33 @@ export default class App {
 	private initializeControllers(controllers: Controller[]) {
 		controllers.forEach((controller) => {
 			this.app.use(`/api${this.version}`, controller.router)
-
 		})
+		this.setSwagger();
+		
 		this.app.use((request: express.Request, response: express.Response, next: express.NextFunction) => {
 			next(new NotFoundException('Method'));
 		});
+
+	}
+	private setSwagger() {
+		this.app.use(express.static('src/swagger'));
+		this.app.use('/rest', (req: express.Request, res: express.Response) => res.send(swaggerDocument));
+		const options = {
+			swaggerOptions: {
+				urls: [{
+					url: `http://localhost:5000/rest`,
+					name: 'Local'
+				}]
+			}
+		};
+		this.app.use('/', (req, res, next) => {
+			swaggerDocument.host = req.get('host');
+			req['swaggerDoc'] = swaggerDocument;
+			next();
+		},
+			swaggerUi.serve,
+			swaggerUi.setup(null, options)
+		);
 	}
 
 	private connectToTheDatabase() {

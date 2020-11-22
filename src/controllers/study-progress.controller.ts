@@ -16,8 +16,8 @@ export class StudyProgressController extends BaseController {
     }
 
     private initializeRoutes(): void {
-        this.router.patch(`${this.path}/:id`, this.update);
-        this.router.get(`${this.path}/`, this.getList);
+        this.router.patch(`${this.path}`, this.update);
+        this.router.get(`${this.path}`, this.getList);
         this.router.get(`${this.path}/progress/:id`, this.progress);
         this.router.post(`${this.path}/add`, this.add);
     }
@@ -74,9 +74,9 @@ export class StudyProgressController extends BaseController {
 
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const { id } = request.params
+        const query = request.query
         const data: Partial<IStudyProgress> = request.body
-        this.model.findByIdAndUpdate(id, { ...data, updatedAt: Date.now() }, { new: true })
+        this.model.findByIdAndUpdate(query, { ...data, updatedAt: Date.now() }, { new: true })
             .then(study => this.send200(response, this.parseModel(study)))
             .catch(err => next(this.send422(err.message || err)));
     }
