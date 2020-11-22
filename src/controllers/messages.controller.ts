@@ -38,13 +38,16 @@ export class MessagesController extends BaseController {
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
         this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() })
-        this.userModel.findOneAndUpdate({ chat_id: data.chat_id }, { haveMessages: true, updatedAt: Date.now() }, { new: true })
             .then(res => {
-                this.model.create(data)
-                    .then(message => response.status(200).json({ result: this.parseModel(message) }))
-                    .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+                this.userModel.findOneAndUpdate({ chat_id: data.chat_id }, { haveMessages: true, updatedAt: Date.now() }, { new: true })
+                    .then(res => {
+                        this.model.create(data)
+                            .then(message => response.status(200).json({ result: this.parseModel(message) }))
+                            .catch(err => next(new UnprocessableEntityException([{ field: 'name', message: err.message }])))
+                    })
+                    .catch(err => response.status(500).json({ result: err.message }))
             })
-            .catch(err => response.status(500).json({ result: err.message }))
+
     };
 
 

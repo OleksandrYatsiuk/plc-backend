@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { Course, CustomMessage, Lesson, User } from 'interfaces';
+import {urls} from './storage/url';
 
 export class ApiHelperService {
-    private _apiUrl = 'http://localhost:5000/api/v1';
+    private _apiUrl = urls.local.backend;
     constructor(link?: string) {
         this._apiUrl = link;
     }

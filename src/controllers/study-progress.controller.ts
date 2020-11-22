@@ -76,7 +76,7 @@ export class StudyProgressController extends BaseController {
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const query = request.query
         const data: Partial<IStudyProgress> = request.body
-        this.model.findByIdAndUpdate(query, { ...data, updatedAt: Date.now() }, { new: true })
+        this.model.findOneAndUpdate(query, { ...data, updatedAt: Date.now() }, { new: true })
             .then(study => this.send200(response, this.parseModel(study)))
             .catch(err => next(this.send422(err.message || err)));
     }
