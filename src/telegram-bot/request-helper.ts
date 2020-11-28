@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Course, CustomMessage, Lesson, User } from 'interfaces';
-import {urls} from './storage/url';
+import { urls } from './storage/url';
 
 export class ApiHelperService {
     private _apiUrl = urls.local.backend;
@@ -10,6 +10,9 @@ export class ApiHelperService {
 
     public updateUser(data: Partial<User>): Promise<any> {
         return axios.patch(`${this._apiUrl}/users/current`, data)
+    }
+    public getUser(chat_id: User['chat_id']): Promise<User> {
+        return axios.get(`${this._apiUrl}/users/user`, { params: { chat_id } }).then(response => response.data.result)
     }
 
     public courseList(): Promise<Course[]> {

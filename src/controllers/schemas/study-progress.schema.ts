@@ -10,7 +10,6 @@ const study = new mongoose.Schema({
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'courses', required: true },
     progress: { type: Number, default: EStudyProgress.NOT_STARTED },
     status: { type: Number, default: false },
-    chat_id: { type: Number },
     isAnswered: { type: Boolean, default: true },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },

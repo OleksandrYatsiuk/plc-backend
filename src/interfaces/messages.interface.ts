@@ -2,7 +2,8 @@ import * as mongoose from 'mongoose';
 
 export interface Messages extends mongoose.Document {
     readonly id: string;
-    chat_id: number;
+    chat_id?: number;
+    userId: string;
     lessonId: string;
     type: EMessageTypes;
     message: Message;
@@ -10,7 +11,7 @@ export interface Messages extends mongoose.Document {
 }
 export interface CustomMessage {
     readonly id?: string;
-    chat_id: number;
+    userId: string;
     lessonId: string;
     type: EMessageTypes;
     message: Message;

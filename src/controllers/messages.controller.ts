@@ -37,9 +37,10 @@ export class MessagesController extends BaseController {
 
     private save = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: Messages = request.body;
-        this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, chat_id: data.chat_id }, { isAnswered: false, updatedAt: Date.now() })
+
+        this.studyModel.findOneAndUpdate({ lessonId: data.lessonId, userId: data.userId }, { isAnswered: false, updatedAt: Date.now() })
             .then(res => {
-                this.userModel.findOneAndUpdate({ chat_id: data.chat_id }, { haveMessages: true, updatedAt: Date.now() }, { new: true })
+                this.userModel.findOneAndUpdate({ _id: data.userId }, { haveMessages: true, updatedAt: Date.now() }, { new: true })
                     .then(res => {
                         this.model.create(data)
                             .then(message => response.status(200).json({ result: this.parseModel(message) }))
@@ -92,7 +93,7 @@ export class MessagesController extends BaseController {
     }
     private sendToUser = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const msg: CustomMessage = request.body;
-        this.studyModel.findOneAndUpdate({ lessonId: msg.lessonId, chat_id: msg.chat_id }, { isAnswered: true, updatedAt: Date.now() }, { new: true })
+        this.studyModel.findOneAndUpdate({ lessonId: msg.lessonId, userId: msg.userId }, { isAnswered: true, updatedAt: Date.now() }, { new: true })
             .then(res => {
                 if (!msg.message.content.link) {
                     this.model.create(msg)
@@ -127,7 +128,7 @@ export class MessagesController extends BaseController {
     private parseModel(message: Messages): Partial<Messages> {
         return {
             id: message._id,
-            chat_id: message.chat_id,
+            userId: message.userId,
             lessonId: message.lessonId,
             type: message.type,
             message: message.message,

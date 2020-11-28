@@ -5,7 +5,7 @@ import { EMessageTypes, Messages } from '../../interfaces/index';
 
 const schema = new mongoose.Schema({
     id: mongoose.Schema.Types.ObjectId,
-    chat_id: { type: Number, required: true, ref: 'users' },
+    userId: { type: String, required: true, ref: 'users' },
     lessonId: { type: String },
     type: { type: String, enum: [EMessageTypes.user, EMessageTypes.bot], required: true },
     message: {

@@ -12,8 +12,8 @@ export const courses_lesson = new BaseScene('lessons');
 courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
 
     const courseId = ctx.match.input.split(':')[1];
-    ctx.session.data = { courseId: courseId };
-    backend.lessonList({ courseId }).then()
+    ctx.session.data = { courseId };
+    backend.lessonList({ courseId })
         .then(lessons => {
             ctx.reply('Виберіть  урок', Extra.HTML().markup((m) =>
                 m.inlineKeyboard([
@@ -36,11 +36,15 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
     })
 
     courses_lesson.action('next', (ctx: SceneContextMessageUpdate & { session: any }) => {
-        ctx.reply('Ви можете вписати результати нижче:', Markup
-            .keyboard([['Завершити',]])
-            .oneTime()
-            .resize()
-            .extra())
+        backend.getUser(ctx.chat.id).then(user => {
+            ctx.session.data.userId = user.id;
+            ctx.reply('Ви можете вписати результати нижче:', Markup
+                .keyboard([['Завершити',]])
+                .oneTime()
+                .resize()
+                .extra())
+        })
+
 
         courses_lesson.on('message', (ctx: SceneContextMessageUpdate & { session: any }) => {
             ctx.session.data['isAddedMessage'] = true;
@@ -50,7 +54,7 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
             } else {
                 fetchFile(message, (content: MessageOptions) => {
                     const data: CustomMessage = {
-                        chat_id: message.chat.id,
+                        userId: ctx.session.data.userId,
                         lessonId: ctx.session.data.lesson,
                         type: EMessageTypes.user,
                         message: {

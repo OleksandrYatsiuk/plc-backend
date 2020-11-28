@@ -18,8 +18,10 @@ bot.telegram.deleteWebhook()
 
 bot.start(ctx => {
     if (ctx['startPayload']) {
-        backend.updateUser({ phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id })
-            .then(response => console.log(response));
+        backend.updateUser({
+            phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id,
+            firstName: ctx.chat.first_name, lastName: ctx.chat.last_name
+        })
     }
     return ctx.reply('Main menu', Markup
         .keyboard([

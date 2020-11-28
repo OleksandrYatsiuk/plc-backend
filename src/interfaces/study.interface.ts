@@ -3,7 +3,6 @@ import * as mongoose from 'mongoose';
 export interface IStudyProgress extends mongoose.Document {
     readonly _id: string;
     userId: string;
-    chat_id: number;
     lessonId: string;
     courseId: string;
     status: EStudyProgress;

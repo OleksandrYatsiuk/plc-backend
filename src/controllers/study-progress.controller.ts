@@ -54,14 +54,14 @@ export class StudyProgressController extends BaseController {
     }
 
     private add = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const { courseId, userId, chat_id }: Partial<IStudyProgress> = request.body;
+        const { courseId, userId }: Partial<IStudyProgress> = request.body;
 
         this.model.exists({ userId, courseId }).then(exist => {
             if (!exist) {
                 this.lessonsModel.find({ courseId })
                     .then(lessons => {
                         if (lessons.length > 0) {
-                            const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId, chat_id }))
+                            const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId }))
                             this.model.insertMany(data)
                                 .then(result => this.send200(response, result))
                                 .catch(err => next(this.send422(err.message || err)));
@@ -81,9 +81,6 @@ export class StudyProgressController extends BaseController {
             .then(result => this.send200(response, result))
             .catch(err => next(this.send422(err.message || err)));
     }
-
-
-
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const query = request.query
