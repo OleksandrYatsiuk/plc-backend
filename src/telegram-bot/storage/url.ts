@@ -1,7 +1,7 @@
 export const urls = {
     prod: {
-        backend: 'https://lesson-backend.herokuapp.com/api/v1',
-        frontend: 'https://lesson-frontend.herokuapp.com'
+        backend: 'https://api-plc.herokuapp.com/api/v1',
+        frontend: 'https://practical-legal-courses.herokuapp.com'
     },
     local: {
         backend: 'http://localhost:5000/api/v1',
