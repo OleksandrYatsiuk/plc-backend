@@ -90,6 +90,18 @@
     },
     "/courses/{id}": {
       "$ref": "./path/courses/courses-item.json"
+    },
+    "/lessons": {
+      "$ref": "./path/lessons/lessons-items.json"
+    },
+    "/lessons/{id}": {
+      "$ref": "./path/lessons/lessons-item.json"
+    },
+    "/messages": {
+      "$ref": "./path/messages/message-items.json"
+    },
+    "/messages/{id}": {
+      "$ref": "./path/messages/message-item.json"
     }
   },
   "components": {

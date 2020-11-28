@@ -2,12 +2,14 @@ import * as express from 'express';
 import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/users.schema';
+import { InsertProgress } from './actions/study-progress/insert-progress.action';
+import studyProgressModel from './schemas/study-progress.schema';
 import { User } from '../interfaces/index'
 
 export class UsersController extends BaseController {
     public path = '/users';
     public model: mongoose.PaginateModel<User & mongoose.Document>;
-
+    public studyProgressHelper = new InsertProgress(studyProgressModel);
     constructor() {
         super();
         this.initializeRoutes();
@@ -29,7 +31,10 @@ export class UsersController extends BaseController {
             .then(exist => {
                 if (!exist) {
                     this.model.create(data)
-                        .then(user => this.send200(response, this.parseModel(user)))
+                        .then(user => {
+                            this.studyProgressHelper.insertMany(user._id, user.chat_id)
+                                .then(() => this.send200(response, this.parseModel(user)))
+                        })
                         .catch(err => next(this.send422([{ field: 'phone', message: err.message }])))
                 } else {
                     this.model.findOne({ phone: data.phone })
@@ -56,7 +61,7 @@ export class UsersController extends BaseController {
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
-        const data = request.params;
+        const data = request.query;
         this.model.findOne(data)
             .then(user => {
                 if (user) {
@@ -70,9 +75,13 @@ export class UsersController extends BaseController {
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params
-        this.model.findByIdAndDelete(id)
-            .then(user => this.send204(response))
-            .catch(err => next(this.send422(err.message || err)))
+        this.studyProgressHelper.deleteMany(id)
+            .then(() => {
+                this.model.findByIdAndDelete(id)
+                    .then(user => this.send204(response))
+                    .catch(err => next(this.send422(err.message || err)))
+            })
+
     }
 
     private start = (request: express.Request, response: express.Response, next: express.NextFunction): void => {

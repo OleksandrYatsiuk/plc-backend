@@ -3,12 +3,14 @@ import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/study-progress.schema';
 import lessonsModel from './schemas/lessons.schema';
-import { IStudyProgress } from '../interfaces/index';
+import { IStudyProgress, User } from '../interfaces/index';
+import { InsertProgress } from './actions/study-progress/insert-progress.action';
 
 export class StudyProgressController extends BaseController {
     public path = '/study-progress';
     public model: mongoose.PaginateModel<IStudyProgress & mongoose.Document>;
     public lessonsModel = lessonsModel;
+    public helper = new InsertProgress(model);
     constructor() {
         super();
         this.initializeRoutes();
@@ -20,6 +22,7 @@ export class StudyProgressController extends BaseController {
         this.router.get(`${this.path}`, this.getList);
         this.router.get(`${this.path}/progress/:id`, this.progress);
         this.router.post(`${this.path}/add`, this.add);
+        this.router.post(`${this.path}/insert`, this.addProgress);
     }
 
 
@@ -71,6 +74,15 @@ export class StudyProgressController extends BaseController {
             }
         })
     }
+
+    private addProgress = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { id, chat_id }: Partial<User> = request.body;
+        this.helper.insertMany(id, chat_id)
+            .then(result => this.send200(response, result))
+            .catch(err => next(this.send422(err.message || err)));
+    }
+
+
 
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {

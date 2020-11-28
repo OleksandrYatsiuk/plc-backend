@@ -124,7 +124,7 @@ export class MessagesController extends BaseController {
             .catch(err => next(new Error(err.message)))
     }
 
-    private parseModel(message: Messages) {
+    private parseModel(message: Messages): Partial<Messages> {
         return {
             id: message._id,
             chat_id: message.chat_id,
