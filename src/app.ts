@@ -9,10 +9,10 @@ const swaggerDocument = require('./swagger/swagger.json');
 import * as swaggerUi from 'swagger-ui-express';
 export default class App {
 	public app: express.Application;
-	public port: number;
+	public port: number
 	public version: string;
 	public host: string;
-	public hostDb = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-9ab1f.mongodb.net/${process.env.DB_NAME}`
+	public hostDb = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@plc.eqrk2.mongodb.net/${process.env.DB_NAME}`
 
 	constructor(controllers: Controller[], port: number, version: string) {
 		this.app = express();
