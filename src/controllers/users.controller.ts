@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as cron from 'node-cron';
 import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/users.schema';
@@ -20,6 +21,8 @@ export class UsersController extends BaseController {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}/register`, this.register);
         this.router.post(`${this.path}/start`, this.start);
+        this.router.post(`${this.path}/code`, this.generateCode)
+        this.router.post(`${this.path}/code-check`, this.codeCheck)
         this.router.patch(`${this.path}/current`, this.update);
         this.router.get(`${this.path}/user`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
@@ -81,7 +84,38 @@ export class UsersController extends BaseController {
                     .then(user => this.send204(response))
                     .catch(err => next(this.send422(err.message || err)))
             })
+    }
 
+    private generateCode = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { phone } = request.body;
+        const code = this.getRandomInt(1000, 9999);
+
+        this.model.findOneAndUpdate({ phone: phone }, { code, updatedAt: Date.now() }, { new: true })
+            .then(user => {
+                let i = 0;
+                const task = cron.schedule('*/30 * * * *', () => {
+                    if (i > 0) {
+                        this.model.findByIdAndUpdate(user.id, { code: null }, { new: true })
+                            .then(result => { })
+                        task.stop();
+                    }
+                    i++;
+                })
+                this.send200(response, this.parseModel(user))
+            })
+            .catch(err => next(this.send422(err.message || err)))
+    }
+
+    private codeCheck = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { phone, code } = request.body;
+        this.model.exists({ phone, code })
+            .then(exist => {
+                if (exist) {
+                    this.send200(response, true)
+                } else {
+                    next(this.send422([{ field: 'code', message: 'Код не актуальний' }]));
+                }
+            })
     }
 
     private start = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -100,9 +134,15 @@ export class UsersController extends BaseController {
             lastName: user.lastName,
             email: user.email,
             chat_id: user.chat_id,
+            code: user.code,
             haveMessages: user.haveMessages,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt
         }
+    }
+    private getRandomInt(min: number, max: number): number {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }

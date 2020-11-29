@@ -17,14 +17,13 @@ export default function errorMiddleware(
             result: message
         })
     } else if (code === 422) {
-        response.status(404).json({
+        response.status(422).json({
             code: 422,
             status: 'error',
             message: 'UnprocessableEntity',
             result: message
         })
     } else {
-
         response.status(500).json({
             code: 500,
             status: 'error',

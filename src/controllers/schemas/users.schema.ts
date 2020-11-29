@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     phone: { type: String, unique: true, required: true },
     chat_id: { type: Number, unique: true },
     status: { type: Number, default: 0 },
+    code: { type: Number, default: null },
     role: { type: String, default: 'subscriber' },
     haveMessages: { type: Boolean, default: false },
     createdAt: { type: Number, default: Date.now() },

@@ -1,4 +1,5 @@
 import * as express from 'express';
+import * as cron from "node-cron";
 import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';
 import { Controller } from './interfaces/controller.interface';
@@ -18,11 +19,12 @@ export default class App {
 		this.app = express();
 		this.port = port || 5000;
 		this.version = version;
+		this.connectToTheDatabase();
 		this.setBodyParser();
 		this.setCors();
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
-		this.connectToTheDatabase();
+		this.setCron();
 	}
 	/**
 	* Headers (CORS)
@@ -44,6 +46,14 @@ export default class App {
 		this.app.use(bodyParser.urlencoded({ extended: false }));
 	}
 
+	private setCron(): void {
+		cron.schedule('*/30 * * * *', function () {
+			sendRequest().then(result => {
+				console.log('push bot')
+			})
+		});
+	}
+
 	public listen() {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
@@ -61,12 +71,12 @@ export default class App {
 			this.app.use(`/api${this.version}`, controller.router)
 		})
 		this.setSwagger();
-		
+
 		this.app.use((request: express.Request, response: express.Response, next: express.NextFunction) => {
 			next(new NotFoundException('Method'));
 		});
-
 	}
+
 	private setSwagger() {
 		this.app.use(express.static('src/swagger'));
 		this.app.use('/rest', (req: express.Request, res: express.Response) => res.send(swaggerDocument));
