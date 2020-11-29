@@ -77,6 +77,8 @@ export class LessonsController extends BaseController {
             name: lesson.name,
             context: lesson.context,
             file: lesson.file,
+            video: lesson.video,
+            presentation: lesson.presentation,
             free: lesson.free,
             status: lesson.status,
             courseId: lesson.courseId,
