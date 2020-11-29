@@ -8,6 +8,8 @@ const schema = new mongoose.Schema({
     name: { type: String, required: true },
     context: { type: String, default: '' },
     courseId: { type: String, ref: 'courses', required: true },
+    video: { type: String, default: '' },
+    presentation: { type: String, default: '' },
     file: { type: String, default: '' },
     free: { type: Boolean, default: false },
     status: { type: Number, default: ECourseStatus.DRAFT },

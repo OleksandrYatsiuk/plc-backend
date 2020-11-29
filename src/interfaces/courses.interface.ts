@@ -13,7 +13,9 @@ export interface Lesson extends mongoose.Document {
     readonly id: string,
     name: string,
     context?: string;
-    file?: File;
+    presentation: string;
+    video: string;
+    file?: string;
     courseId: string;
     free?: boolean;
     status?: number;
