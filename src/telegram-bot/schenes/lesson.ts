@@ -27,14 +27,16 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
         backend.lessonDetail(lessonId)
             .then(lesson => {
                 ctx.replyWithHTML(lesson.context, Extra.HTML().markup((m) =>
-                    m.inlineKeyboard([m.callbackButton('Далі', 'next')])
+                    m.inlineKeyboard([
+                        m.callbackButton('Надати відповідь', 'next'),
+                        m.urlButton('Перейти на деталі заняття', `${urls.prod.frontend}/homework/lessons/${lessonId}?chat_id=${ctx.chat.id}`)
+                    ])
                 ))
             }).catch(e => {
                 return ctx.reply(e.response.data.result)
             })
 
     })
-
     courses_lesson.action('next', (ctx: SceneContextMessageUpdate & { session: any }) => {
         backend.getUser(ctx.chat.id).then(user => {
             ctx.session.data.userId = user.id;
@@ -44,7 +46,6 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                 .resize()
                 .extra())
         })
-
 
         courses_lesson.on('message', (ctx: SceneContextMessageUpdate & { session: any }) => {
             ctx.session.data['isAddedMessage'] = true;
