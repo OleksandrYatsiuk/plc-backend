@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/courses.schema';
 import { Course } from '../interfaces/index'
+import { countReset } from 'console';
 
 export class CoursesController extends BaseController {
     public path = '/courses';
@@ -70,6 +71,7 @@ export class CoursesController extends BaseController {
             name: course.name,
             description: course.description,
             status: course.status,
+            price: course.price,
             createdAt: course.createdAt,
             updatedAt: course.updatedAt
         }
