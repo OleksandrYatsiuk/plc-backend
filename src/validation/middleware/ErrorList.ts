@@ -44,7 +44,7 @@ export default class ErrorList {
 		[this.DATE_INVALID]: 'The format of "{attr}" is invalid.',
 		[this.DATE_TOO_SMALL]: '"{attr}" має бути не менше ніж {min}.',
 		[this.DATE_TOO_BIG]: '"{attr}" має бути не більше ніж {max}.',
-		[this.CREDENTIALS_INVALID]: "Не коректна електронна пошта і/або пароль.",
+		[this.CREDENTIALS_INVALID]: "Не коректні номер телефону і/або пароль.",
 		[this.EXIST_INVALID]: 'Поле "{attr}" не коректне.',
 
 		[this.NUMBER_INVALID]: '"{attr}" must be a number.',

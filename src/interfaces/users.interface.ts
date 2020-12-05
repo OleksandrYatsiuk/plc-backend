@@ -10,6 +10,8 @@ export interface User extends mongoose.Document {
     chat_id: number;
     status: number;
     haveMessages: boolean;
+    readonly passwordHash?: string;
+    accessToken?: string;
     createdAt: number;
     updatedAt: number;
 }

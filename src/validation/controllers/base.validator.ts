@@ -1,5 +1,6 @@
-import * as Joi from "@hapi/joi";
-import { SchemaMap, valid, CustomHelpers } from "@hapi/joi";
+// import * as Joi from "@hapi/joi";
+import * as Joi from "joi";
+import { SchemaMap, valid, CustomHelpers } from "joi";
 import { BaseConfig } from "../../validation/config/base.config";
 import { ErrorMessage } from "../../validation/middleware/ErrorMessage";
 import { HttpException } from "../../exceptions/index";

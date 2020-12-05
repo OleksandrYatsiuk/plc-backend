@@ -1,5 +1,6 @@
 import Telegraf from 'telegraf';
 import { Markup, Extra, Stage, session } from 'telegraf';
+import { TelegrafContext } from 'telegraf/typings/context';
 import { Message } from 'telegraf/typings/telegram-types';
 import { ApiHelperService } from './request-helper';
 import { courses_lesson } from './schenes/lesson';
@@ -16,10 +17,10 @@ bot.telegram.deleteWebhook()
 
 
 
-bot.start(ctx => {
-    if (ctx['startPayload']) {
+bot.start((ctx: TelegrafContext & { startPayload: string }) => {
+    if (ctx.startPayload) {
         backend.updateUser({
-            phone: "+" + ctx['startPayload'], chat_id: ctx.chat.id,
+            phone: ctx.startPayload, chat_id: ctx.chat.id,
             firstName: ctx.chat.first_name, lastName: ctx.chat.last_name
         })
     }
@@ -34,13 +35,13 @@ bot.start(ctx => {
         .extra())
 })
 
-bot.hears('🔍 Про нас', (ctx: any): Promise<Message> => {
+bot.hears('🔍 Про нас', (ctx: TelegrafContext): Promise<Message> => {
     return ctx.replyWithMarkdown(about);
 })
-bot.hears('☸ Результати', (ctx: any): Promise<Message> => {
+bot.hears('☸ Результати', (ctx: TelegrafContext): Promise<Message> => {
     return ctx.reply(result);
 })
-bot.hears('👨‍🎓 Курси', (ctx: any) => {
+bot.hears('👨‍🎓 Курси', (ctx: TelegrafContext) => {
     backend.courseList().then(courses => {
         return ctx.reply('Виберіть курс', Extra.HTML().markup((m) =>
             m.inlineKeyboard([
@@ -49,7 +50,7 @@ bot.hears('👨‍🎓 Курси', (ctx: any) => {
     })
 })
 
-bot.hears('💰 Оплата', (ctx: any) => {
+bot.hears('💰 Оплата', (ctx: TelegrafContext) => {
     return ctx.reply('Practical Legal Courses – школа нового формату',
         Extra.HTML().markup((m) =>
             m.inlineKeyboard([

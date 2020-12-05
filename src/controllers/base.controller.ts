@@ -21,11 +21,11 @@ export default class BaseController implements Controller {
     this.router = express.Router();
   }
 
-  public send200(response: express.Response, data?) {
+  public send200(response: express.Response, data?: any) {
     return code200(response, data || null);
   }
 
-  public send200Data(response: express.Response, pagination: Pagination, data?) {
+  public send200Data(response: express.Response, pagination: Pagination, data?: any) {
     return code200DataProvider(response, pagination, data);
   }
 
@@ -33,7 +33,7 @@ export default class BaseController implements Controller {
     return code204(response);
   }
 
-  public send201(response: express.Response, data) {
+  public send201(response: express.Response, data: any) {
     return code201(response, data);
   }
 

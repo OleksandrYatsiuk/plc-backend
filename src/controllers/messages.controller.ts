@@ -8,17 +8,14 @@ import studyModel from './schemas/study-progress.schema';
 import userModel from './schemas/users.schema';
 import { Messages } from '../interfaces/index'
 import { NotFoundException, UnprocessableEntityException } from '../exceptions/index';
-import * as multer from 'multer';
 import { bot } from '../telegram-bot/telegram-bot'
 
 export class MessagesController extends BaseController {
-    public url = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/`;
     public path = '/messages';
     public model: mongoose.PaginateModel<Messages & mongoose.Document>;
     public studyModel = studyModel;
     public userModel = userModel;
     public http = axios;
-    public upload = multer({ dest: 'uploads/', preservePath: true })
     constructor() {
         super();
         this.initializeRoutes();
@@ -29,7 +26,7 @@ export class MessagesController extends BaseController {
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}`, this.save);
-        this.router.post(`${this.path}/message`, this.upload.any(), this.sendToUser);
+        this.router.post(`${this.path}/message`, this.sendToUser);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
         this.router.post(`${this.path}/refresh`, this.refreshFile);

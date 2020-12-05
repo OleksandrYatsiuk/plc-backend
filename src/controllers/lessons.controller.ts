@@ -31,7 +31,7 @@ export class LessonsController extends BaseController {
                 if (!exist) {
                     this.model.create(data)
                         .then(user => this.send200(response, this.parseModel(user)))
-                        .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
+                        .catch(err => next(this.send500(err?.message || err)))
                 } else {
                     next(this.send422(this.custom('name', this.validator.REQUIRED_INVALID, [{ value: data.name }])))
                 }

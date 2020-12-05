@@ -10,7 +10,7 @@ export default class LessonValidator extends BaseValidator {
         video: this.val.string().optional().allow("").label('Відео'),
         file: this.val.string().optional().allow("").label('Файл'),
         courseId: this.val.string().label('Курс Id'),
-        free: this.val.string().label('Безкоштовний'),
+        free: this.val.boolean().label('Безкоштовний'),
         status: this.val.number().required().valid(ECourseStatus.DRAFT, ECourseStatus.PUBLISHED).label('Статус'),
     });
 }

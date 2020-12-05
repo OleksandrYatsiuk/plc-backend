@@ -3,6 +3,7 @@ import * as cron from 'node-cron';
 import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/users.schema';
+import { hash, compare, hashSync, compareSync } from 'bcrypt';
 import { InsertProgress } from './actions/study-progress/insert-progress.action';
 import studyProgressModel from './schemas/study-progress.schema';
 import { User } from '../interfaces/index'
@@ -21,6 +22,7 @@ export class UsersController extends BaseController {
 
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
+        this.router.post(`${this.path}/login`, this.login);
         this.router.post(`${this.path}/register`, this.register);
         this.router.post(`${this.path}/start`, this.start);
         this.router.post(`${this.path}/code`, this.generateCode)
@@ -47,13 +49,31 @@ export class UsersController extends BaseController {
                 }
             })
     };
+    private login = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { password, phone } = request.body;
+        this.model.findOne({ phone: phone.slice(phone.length - 10) })
+            .then(user => {
+                if (user && compareSync(password, user.passwordHash)) {
+                    const token = hashSync(password, 10)
+                    this.model.findByIdAndUpdate(user.id, { accessToken: token }, { new: true })
+                        .then(user => {
+                            this.send200(response, {
+                                token: user.accessToken
+                            })
+                        })
+                } else {
+                    next(this.send422(this.custom('phone', this.validator.CREDENTIALS_INVALID)))
+                }
+            })
+            .catch(e => this.send500(e.message | e))
+    };
 
 
     private update = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const data: User = request.body;
         this.model.findOneAndUpdate({ phone: data.phone }, { ...data, updatedAt: Date.now() }, { new: true })
             .then(user => this.send200(response, this.parseModel(user)))
-            .catch(err => next(this.send422(err.message || err)))
+            .catch(err => next(this.send500(err.message || err)))
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -62,7 +82,7 @@ export class UsersController extends BaseController {
             .then(({ docs, total, limit, page, pages }) => {
                 this.send200Data(response, { total, limit, page, pages }, docs.map(user => this.parseModel(user)))
             })
-            .catch(err => next(this.send422(err.message || err)))
+            .catch(err => next(this.send500(err.message || err)))
     }
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -75,7 +95,7 @@ export class UsersController extends BaseController {
                     next(this.send404('User'));
                 }
             })
-            .catch(err => next(this.send422(err.message || err)))
+            .catch(err => next(this.send500(err.message || err)))
     }
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
