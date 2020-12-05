@@ -3,13 +3,21 @@ import * as express from "express";
 import { Pagination } from "interfaces";
 import { code200, code200DataProvider, code204, code201, code401 } from "../middleware/base.middleware";
 import { Controller } from '../interfaces/controller.interface';
+import { ErrorMessage } from "../validation/middleware/ErrorMessage";
+import { BaseValidator } from "../validation/controllers/base.validator";
+import { validate } from "../middleware/validate.middleware";
 
 
 export default class BaseController implements Controller {
   public path: string;
   public router: express.Router;
+  public validator: ErrorMessage;
+  public baseValidator: BaseValidator;
+
   constructor() {
     this.path = '/';
+    this.validator = new ErrorMessage();
+    this.baseValidator = new BaseValidator();
     this.router = express.Router();
   }
 
@@ -43,5 +51,11 @@ export default class BaseController implements Controller {
 
   public send500(data: any) {
     return new HttpException(InternalServerError, data)
+  }
+  public validate(schema, params?: string) {
+    return validate(schema, params);
+  }
+  public custom(field: string, code: number, params?: Array<any>) {
+    return [this.validator.addCustomError(field, code, params)]
   }
 }

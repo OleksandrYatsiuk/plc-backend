@@ -2,7 +2,7 @@
   "allOf": [
     {
       "type": "object",
-      "required": ["name"],
+      "required": ["name", "status"],
 
       "properties": {
         "id": {
@@ -13,6 +13,12 @@
         "name": {
           "type": "string",
           "example": "Курс"
+        },
+        "status": {
+          "type": "integer",
+          "example": 1,
+          "enum": [1, 2],
+          "description":"1 - Draft, 2 - Published"
         },
         "description": {
           "type": "string",

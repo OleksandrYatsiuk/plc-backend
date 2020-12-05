@@ -3,12 +3,12 @@ import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/courses.schema';
 import { Course } from '../interfaces/index'
-import { countReset } from 'console';
+import CourseValidator from '../validation/controllers/course.validator';
 
 export class CoursesController extends BaseController {
     public path = '/courses';
     public model: mongoose.PaginateModel<Course & mongoose.Document>;
-
+    private customValidator = new CourseValidator()
     constructor() {
         super();
         this.initializeRoutes();
@@ -17,8 +17,8 @@ export class CoursesController extends BaseController {
 
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
-        this.router.post(`${this.path}`, this.create);
-        this.router.patch(`${this.path}/:id`, this.update);
+        this.router.post(`${this.path}`, super.validate(this.customValidator.course), this.create);
+        this.router.patch(`${this.path}/:id`, super.validate(this.customValidator.course), this.update);
         this.router.get(`${this.path}/:id`, this.geItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
@@ -30,6 +30,8 @@ export class CoursesController extends BaseController {
                     this.model.create(data)
                         .then(user => this.send200(response, this.parseModel(user)))
                         .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
+                } else {
+                    next(this.send422(this.custom('name', this.validator.REQUIRED_INVALID, [{ value: data.name }])))
                 }
             })
     };

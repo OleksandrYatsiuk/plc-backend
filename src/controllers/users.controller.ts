@@ -6,6 +6,8 @@ import model from './schemas/users.schema';
 import { InsertProgress } from './actions/study-progress/insert-progress.action';
 import studyProgressModel from './schemas/study-progress.schema';
 import { User } from '../interfaces/index'
+import { bot } from '../telegram-bot/telegram-bot';
+
 
 export class UsersController extends BaseController {
     public path = '/users';
@@ -92,6 +94,9 @@ export class UsersController extends BaseController {
 
         this.model.findOneAndUpdate({ phone: phone }, { code, updatedAt: Date.now() }, { new: true })
             .then(user => {
+                bot.telegram.sendMessage(user.chat_id,
+                    `Код активації для заняття: *${code}*. \nДійсний протягом 30хв або до моменту повторної генерації`, { parse_mode: 'Markdown' })
+
                 let i = 0;
                 const task = cron.schedule('*/30 * * * *', () => {
                     if (i > 0) {
@@ -113,7 +118,7 @@ export class UsersController extends BaseController {
                 if (exist) {
                     this.send200(response, true)
                 } else {
-                    next(this.send422([{ field: 'code', message: 'Код не актуальний' }]));
+                    next(this.send422(this.custom('code', this.validator.CODE_WRONG)));
                 }
             })
     }
@@ -126,7 +131,7 @@ export class UsersController extends BaseController {
             .catch(err => next(this.send422(err.message || err)))
     }
 
-    private parseModel(user: Partial<User>): Partial<User> {
+    private parseModel(user: User): Partial<User> {
         return {
             id: user._id,
             phone: user.phone,

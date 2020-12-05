@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/OleksandrYatsiuk/lesson-backend#readme",
   "dependencies": {
+    "@hapi/joi": "^17.1.1",
     "@types/axios": "^0.14.0",
     "@types/body-parser": "^1.19.0",
     "@types/dotenv": "^8.2.0",

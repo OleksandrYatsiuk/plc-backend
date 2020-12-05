@@ -4,11 +4,13 @@ import BaseController from "./base.controller";
 import model from './schemas/lessons.schema';
 import courseModel from './schemas/courses.schema';
 import { Lesson } from '../interfaces/index'
+import LessonValidator from '../validation/controllers/lesson.validator';
 
 export class LessonsController extends BaseController {
     public path = '/lessons';
     public model: mongoose.PaginateModel<Lesson & mongoose.Document>;
     public courseModel = courseModel;
+    public customValidator = new LessonValidator()
     constructor() {
         super();
         this.initializeRoutes();
@@ -17,9 +19,9 @@ export class LessonsController extends BaseController {
 
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
-        this.router.post(`${this.path}`, this.create);
+        this.router.post(`${this.path}`, super.validate(this.customValidator.lesson), this.create);
         this.router.get(`${this.path}/:id`, this.geItem);
-        this.router.patch(`${this.path}/:id`, this.updateItem);
+        this.router.patch(`${this.path}/:id`, super.validate(this.customValidator.lesson), this.updateItem);
         this.router.delete(`${this.path}/:id`, this.removeItem);
     }
     private create = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -31,7 +33,7 @@ export class LessonsController extends BaseController {
                         .then(user => this.send200(response, this.parseModel(user)))
                         .catch(err => next(this.send422([{ field: 'name', message: err.message }])))
                 } else {
-                    next(this.send422([{ field: 'name', message: `Lesson "${data.name}" is already exist.` }]))
+                    next(this.send422(this.custom('name', this.validator.REQUIRED_INVALID, [{ value: data.name }])))
                 }
             })
     };
@@ -71,7 +73,7 @@ export class LessonsController extends BaseController {
             .catch(err => next(this.send404('Lesson')));
     }
 
-    private parseModel(lesson: Partial<Lesson>): Partial<Lesson> {
+    private parseModel(lesson: Lesson): Partial<Lesson> {
         return {
             id: lesson._id,
             name: lesson.name,
