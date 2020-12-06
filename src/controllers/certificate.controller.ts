@@ -16,7 +16,7 @@ export class CertificateController extends BaseController {
     private initializeRoutes(): void {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}`, this.create);
-        this.router.delete(`${this.path}`, this.remove);
+        this.router.delete(`${this.path}/:id`, this.remove);
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
