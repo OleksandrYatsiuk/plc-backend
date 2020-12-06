@@ -5,7 +5,7 @@ import model from './schemas/certificate.schema';
 import { Certificate } from '../interfaces/index';
 
 export class CertificateController extends BaseController {
-    public path = '/certificate';
+    public path = '/certificates';
     public model: mongoose.PaginateModel<Certificate & mongoose.Document>;
     constructor() {
         super();
