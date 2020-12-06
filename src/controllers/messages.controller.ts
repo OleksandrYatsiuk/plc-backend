@@ -75,8 +75,8 @@ export class MessagesController extends BaseController {
 
     private removeItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
-        this.model.findById(id).then(msg => {
-            bot.telegram.deleteMessage(msg.chat_id, msg.message.id)
+        this.model.findById(id).populate('userId').then(msg => {
+            bot.telegram.deleteMessage(msg.userId['chat_id'], msg.message.id)
                 .then(res => {
                     this.model.findByIdAndDelete(id)
                         .then(() => response.status(204).json());
