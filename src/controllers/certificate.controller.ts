@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/certificate.schema';
 import { Certificate } from '../interfaces/index';
+import { bot } from '../telegram-bot/telegram-bot';
 
 export class CertificateController extends BaseController {
     public path = '/certificates';
@@ -34,9 +35,13 @@ export class CertificateController extends BaseController {
 
     private create = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const body: Certificate = request.body;
-        this.model.create(body)
-            .then(result => this.send200(response, this.parseModel(result)))
-            .catch(err => this.send500(err.message || err))
+        bot.telegram.getFileLink(body.fileId).then(link => {
+            body.fileLink = link;
+            this.model.create(body)
+                .then(result => this.send200(response, this.parseModel(result)))
+                .catch(err => this.send500(err.message || err))
+        })
+
     }
     private remove = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;

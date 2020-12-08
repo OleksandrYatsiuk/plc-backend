@@ -9,7 +9,7 @@ const certificate = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true },
     courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'courses', required: true },
     progress: { type: Number, default: EStudyProgress.NOT_STARTED },
-    fileId: { type: Number, required: true },
+    fileId: { type: String, required: true },
     fileLink: { type: String, required: true },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
