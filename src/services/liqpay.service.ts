@@ -9,7 +9,7 @@ export class LiqPayService {
     constructor() { }
 
 
-    public cnb_form(params: Payment): PaymentForm {
+    public cnb_form(params: Partial<Payment>): PaymentForm {
         return this.cnb_object(params, EPaymentAction.PAY)
     }
 
@@ -35,7 +35,7 @@ export class LiqPayService {
 
         params.public_key = this.public_key;
         if (!params.language)
-            params.language = 'ru';
+            params.language = 'ua';
         if (!params.version)
             params.version = '3'
         if (!params.action)
@@ -46,8 +46,11 @@ export class LiqPayService {
                     params.currency = 'UAH'
                 if (!params.amount)
                     throw new Error('Amount can not be blank');
-                if (!params.description)
-                    throw new Error('Description can not be blank');
+                // if (!params.description)
+                //     throw new Error('Description can not be blank');
+                if (!params.order_id)
+                    throw new Error('Order Id can not be blank');
+                params.result_url = `http://localhost:5000/api/v1/payments/${params.order_id}`
                 return params;
             case EPaymentAction.STATUS:
                 if (!params.order_id)

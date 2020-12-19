@@ -1,6 +1,7 @@
 import { IStudyProgress } from 'interfaces/study.interface';
 import * as mongoose from 'mongoose';
 import lessonsModel from '../../schemas/lessons.schema';
+
 export class InsertProgress {
     public model: mongoose.PaginateModel<IStudyProgress & mongoose.Document>;
     public lessonsModel = lessonsModel;

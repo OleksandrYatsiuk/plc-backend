@@ -1,7 +1,7 @@
 import { NotFoundException, UnprocessableEntityException, HttpException, InternalServerError } from "../exceptions";
 import * as express from "express";
 import { Pagination } from "interfaces";
-import { code200, code200DataProvider, code204, code201, code401 } from "../middleware/base.middleware";
+import { code200, code200DataProvider, code204, code201, code401, code403 } from "../middleware/base.middleware";
 import { Controller } from '../interfaces/controller.interface';
 import { ErrorMessage } from "../validation/middleware/ErrorMessage";
 import { BaseValidator } from "../validation/controllers/base.validator";
@@ -39,6 +39,9 @@ export default class BaseController implements Controller {
 
   public send401(response: express.Response) {
     return code401(response);
+  }
+  public send403(response: express.Response) {
+    return code403(response);
   }
 
   public send404(errors) {

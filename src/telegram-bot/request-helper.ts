@@ -21,8 +21,8 @@ export class ApiHelperService {
     public lessonList(params: Partial<Lesson>): Promise<Lesson[]> {
         return axios.get(`${this._apiUrl}/lessons`, { params }).then(response => response.data.result);
     }
-    public lessonDetail(id: Lesson['id']): Promise<Lesson> {
-        return axios.get(`${this._apiUrl}/lessons/${id}`).then(response => response.data.result);
+    public lessonDetail(id: Lesson['id'], chat_id: User['chat_id']): Promise<Lesson> {
+        return axios.get(`${this._apiUrl}/lessons/${id}`, { params: { chat_id } }).then(response => response.data.result);
     }
     public sendMessage(body: CustomMessage): Promise<CustomMessage> {
         return axios.post(`${this._apiUrl}/messages`, body).then(response => response.data.result)

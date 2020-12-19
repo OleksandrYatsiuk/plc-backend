@@ -159,6 +159,7 @@ export class UsersController extends BaseController {
             lastName: user.lastName,
             email: user.email,
             chat_id: user.chat_id,
+            courses: user.courses,
             code: user.code,
             haveMessages: user.haveMessages,
             createdAt: user.createdAt,

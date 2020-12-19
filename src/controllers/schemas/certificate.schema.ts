@@ -1,4 +1,4 @@
-import { IStudyProgress, EStudyProgress } from '../../interfaces/study.interface';
+import { IStudyProgress, EStudyProgress } from '../../interfaces/index';
 import * as mongoose from 'mongoose';
 import * as  mongoosePaginate from 'mongoose-paginate';
 import { Certificate } from 'interfaces/certificate.interface';

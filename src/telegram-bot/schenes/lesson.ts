@@ -13,6 +13,7 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
 
     const courseId = ctx.match.input.split(':')[1];
     ctx.session.data = { courseId };
+    
     backend.lessonList({ courseId })
         .then(lessons => {
             ctx.reply('Виберіть  урок', Extra.HTML().markup((m) =>
@@ -24,7 +25,7 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
     courses_lesson.action(/lesson:/, (ctx: SceneContextMessageUpdate & { session: any }) => {
         const lessonId = ctx.match.input.split(':')[1];
         ctx.session.data['lesson'] = lessonId;
-        backend.lessonDetail(lessonId)
+        backend.lessonDetail(lessonId, ctx.chat.id)
             .then(lesson => {
                 ctx.replyWithHTML(lesson.context, Extra.HTML().markup((m) =>
                     m.inlineKeyboard([
@@ -33,7 +34,14 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                     ])
                 ))
             }).catch(e => {
-                return ctx.reply(e.response.data.result)
+                if (e.response.data.code === 403) {
+                   return ctx.reply('У Вас немає доступу до цього уроку. \n Ви можете оплатити курс і продовжити навчання далі.', Extra.HTML().markup((m) =>
+                    m.inlineKeyboard([
+                        m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=${ctx.session.data.courseId}`),
+                    ])))
+                } else {
+                    return ctx.reply(e.response.data.result)
+                }
             })
 
     })

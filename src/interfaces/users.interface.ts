@@ -8,6 +8,7 @@ export interface User extends mongoose.Document {
     email: string;
     code: number;
     chat_id: number;
+    courses: string[],
     status: number;
     haveMessages: boolean;
     readonly passwordHash?: string;

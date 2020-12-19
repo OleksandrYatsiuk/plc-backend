@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     status: { type: Number, default: 0 },
     code: { type: Number, default: null },
     role: { type: String, default: 'subscriber' },
+    courses: [{ type: String, default: [] }],
     haveMessages: { type: Boolean, default: false },
     passwordHash: { type: String },
     accessToken: { type: String },

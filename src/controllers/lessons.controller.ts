@@ -3,6 +3,7 @@ import * as mongoose from 'mongoose';
 import BaseController from "./base.controller";
 import model from './schemas/lessons.schema';
 import courseModel from './schemas/courses.schema';
+import userModel from './schemas/users.schema';
 import { Lesson } from '../interfaces/index'
 import LessonValidator from '../validation/controllers/lesson.validator';
 
@@ -10,6 +11,7 @@ export class LessonsController extends BaseController {
     public path = '/lessons';
     public model: mongoose.PaginateModel<Lesson & mongoose.Document>;
     public courseModel = courseModel;
+    public userModel = userModel;
     public customValidator = new LessonValidator()
     constructor() {
         super();
@@ -52,9 +54,25 @@ export class LessonsController extends BaseController {
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
+        const { chat_id } = request.query;
         this.model.findById(id)
-            .then(lesson => this.send200(response, this.parseModel(lesson)))
+            .then(lesson => {
+                if (lesson.free) {
+                    this.send200(response, this.parseModel(lesson))
+                } else {
+                    this.userModel.findOne({ chat_id: +chat_id, courses: { $in: [lesson.courseId] } })
+                        .then(user => {
+                            if (user) {
+                                this.send200(response, this.parseModel(lesson))
+                            } else {
+                                this.send403(response);
+                            }
+                        })
+                }
+
+            })
             .catch(err => next(this.send404('Lesson')));
+
     }
 
     private updateItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
