@@ -18,6 +18,7 @@ export class CertificateController extends BaseController {
         this.router.get(`${this.path}`, this.getList);
         this.router.post(`${this.path}`, this.create);
         this.router.delete(`${this.path}/:id`, this.remove);
+        this.router.put(`${this.path}/:id`, this.refreshFile);
     }
 
     private getList = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -50,14 +51,26 @@ export class CertificateController extends BaseController {
             .catch(() => this.send404('Certificate'))
     }
 
-    private parseModel(study: Certificate): Partial<Certificate> {
+    private refreshFile = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
+        const { fileId }: Partial<Certificate> = request.body;
+        const { id } = request.params;
+        bot.telegram.getFileLink(fileId)
+            .then(fileLink => {
+                this.model.findByIdAndUpdate(id, { $set: { fileLink } }, { new: true })
+                    .then(certificate => response.status(200).json({ result: this.parseModel(certificate) }))
+                    .catch(err => next(new Error(err.message)))
+            })
+            .catch(err => next(new Error(err.message)))
+    }
+
+    private parseModel(certificate: Certificate): Partial<Certificate> {
         return {
-            id: study._id,
-            userId: study.userId,
-            fileId: study.fileId,
-            fileLink: study.fileLink,
-            createdAt: study.createdAt,
-            updatedAt: study.updatedAt
+            id: certificate._id,
+            userId: certificate.userId,
+            fileId: certificate.fileId,
+            fileLink: certificate.fileLink,
+            createdAt: certificate.createdAt,
+            updatedAt: certificate.updatedAt
         }
     }
 }
