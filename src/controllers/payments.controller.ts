@@ -31,9 +31,8 @@ export class PaymentsController extends BaseController {
 
         this.userModel.findOne({ phone: body.phone.slice(body.phone.length - 10) })
             .then(user => {
-                console.log(user);
                 if (user) {
-                    this.model.create({ ...body, userId: user.id })
+                    this.model.create({ ...body, userId: user._id })
                         .then(record => {
                             const obj: Partial<Payment> = {
                                 order_id: record._id,
