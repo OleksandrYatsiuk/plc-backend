@@ -54,13 +54,22 @@ export class LessonsController extends BaseController {
 
     private geItem = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { id } = request.params;
-        const { chat_id } = request.query;
+        const { phone, chat_id }: any = request.query;
         this.model.findById(id)
             .then(lesson => {
                 if (lesson.free) {
                     this.send200(response, this.parseModel(lesson))
                 } else {
-                    this.userModel.findOne({ chat_id: +chat_id, courses: { $in: [lesson.courseId] } })
+                    let params = {};
+                    if (phone) {
+                        params = { phone: phone.slice(phone.length - 10) }
+                    }
+                    if (chat_id) {
+                        params = { chat_id: +chat_id };
+                    }
+                    this.userModel.findOne({
+                        ...params, courses: { $in: [lesson.courseId] }
+                    })
                         .then(user => {
                             if (user) {
                                 this.send200(response, this.parseModel(lesson))
@@ -69,7 +78,6 @@ export class LessonsController extends BaseController {
                             }
                         })
                 }
-
             })
             .catch(err => next(this.send404('Lesson')));
 

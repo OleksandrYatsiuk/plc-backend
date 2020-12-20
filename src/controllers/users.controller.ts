@@ -3,7 +3,7 @@ import * as cron from 'node-cron';
 import * as mongoose from 'mongoose';
 import BaseController from './base.controller';
 import model from './schemas/users.schema';
-import { hash, compare, hashSync, compareSync } from 'bcrypt';
+import { hashSync, compareSync } from 'bcrypt';
 import { InsertProgress } from './actions/study-progress/insert-progress.action';
 import studyProgressModel from './schemas/study-progress.schema';
 import { User } from '../interfaces/index'
@@ -112,7 +112,7 @@ export class UsersController extends BaseController {
         const { phone } = request.body;
         const code = this.getRandomInt(1000, 9999);
 
-        this.model.findOneAndUpdate({ phone: phone }, { code, updatedAt: Date.now() }, { new: true })
+        this.model.findOneAndUpdate({ phone: phone.slice(phone.length - 10) }, { code, updatedAt: Date.now() }, { new: true })
             .then(user => {
                 bot.telegram.sendMessage(user.chat_id,
                     `Код активації для заняття: *${code}*. \nДійсний протягом 30хв або до моменту повторної генерації`, { parse_mode: 'Markdown' })
@@ -120,7 +120,7 @@ export class UsersController extends BaseController {
                 let i = 0;
                 const task = cron.schedule('*/30 * * * *', () => {
                     if (i > 0) {
-                        this.model.findByIdAndUpdate(user.id, { code: null }, { new: true })
+                        this.model.findByIdAndUpdate(user.id, { code: null, updatedAt: Date.now() }, { new: true })
                             .then(result => { })
                         task.stop();
                     }
@@ -133,7 +133,7 @@ export class UsersController extends BaseController {
 
     private codeCheck = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { phone, code } = request.body;
-        this.model.exists({ phone, code })
+        this.model.exists({ phone: phone.slice(phone.length - 10), code })
             .then(exist => {
                 if (exist) {
                     this.send200(response, true)
