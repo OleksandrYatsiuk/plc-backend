@@ -55,7 +55,7 @@ export class UsersController extends BaseController {
             .then(user => {
                 if (user && compareSync(password, user.passwordHash)) {
                     const token = hashSync(password, 10)
-                    this.model.findByIdAndUpdate(user.id, { accessToken: token }, { new: true })
+                    this.model.findByIdAndUpdate(user._id, { accessToken: token }, { new: true })
                         .then(user => {
                             this.send200(response, {
                                 token: user.accessToken

@@ -1,4 +1,3 @@
-import { string } from 'joi';
 import * as mongoose from 'mongoose';
 import * as  mongoosePaginate from 'mongoose-paginate';
 import { User } from '../../interfaces/index';
@@ -15,8 +14,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, default: 'subscriber' },
     courses: [{ type: String, default: [] }],
     haveMessages: { type: Boolean, default: false },
-    passwordHash: { type: String },
-    accessToken: { type: String },
+    passwordHash: { type: String, default: null },
+    accessToken: { type: String, default: null },
     createdAt: { type: Number, default: Date.now() },
     updatedAt: { type: Number, default: Date.now() },
 }, { versionKey: false });
