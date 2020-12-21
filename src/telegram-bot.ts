@@ -6,7 +6,9 @@ import { ApiHelperService } from './request-helper';
 import { courses_lesson } from './schenes/lesson';
 import { about, result } from './storage/texts';
 import { urls } from './storage/url';
+
 export const bot = new Telegraf(process.env.BOT_TOKEN);
+
 const backend = new ApiHelperService(urls.prod.backend)
 
 bot.telegram.deleteWebhook()
@@ -14,8 +16,6 @@ bot.telegram.deleteWebhook()
         success && console.log('🤖 is listening to your commands');
         bot.startPolling();
     });
-
-
 
 bot.start((ctx: TelegrafContext & { startPayload: string }) => {
     if (ctx.startPayload) {

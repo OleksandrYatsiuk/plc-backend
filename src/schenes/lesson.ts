@@ -1,10 +1,10 @@
-import { CustomMessage, EMessageTypes, EContentTypes, MessageOptions } from '../../interfaces';
+import { CustomMessage, EMessageTypes, EContentTypes, MessageOptions } from '../interfaces';
 import { Markup, Extra, BaseScene } from 'telegraf';
 import { SceneContextMessageUpdate } from 'telegraf/typings/stage';
 import { Message } from 'telegraf/typings/telegram-types';
-import { ApiHelperService } from '../../telegram-bot/request-helper';
-import { bot } from '../../telegram-bot/telegram-bot';
-import { urls } from '../../telegram-bot/storage/url';
+import { ApiHelperService } from '../request-helper';
+import { bot } from '../telegram-bot';
+import { urls } from '../storage/url';
 
 const backend = new ApiHelperService(urls.prod.backend)
 export const courses_lesson = new BaseScene('lessons');
@@ -13,7 +13,7 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
 
     const courseId = ctx.match.input.split(':')[1];
     ctx.session.data = { courseId };
-    
+
     backend.lessonList({ courseId })
         .then(lessons => {
             ctx.reply('Виберіть  урок', Extra.HTML().markup((m) =>
@@ -35,10 +35,10 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                 ))
             }).catch(e => {
                 if (e.response.data.code === 403) {
-                   return ctx.reply('У Вас немає доступу до цього уроку. \n Ви можете оплатити курс і продовжити навчання далі.', Extra.HTML().markup((m) =>
-                    m.inlineKeyboard([
-                        m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=${ctx.session.data.courseId}`),
-                    ])))
+                    return ctx.reply('У Вас немає доступу до цього уроку. \n Ви можете оплатити курс і продовжити навчання далі.', Extra.HTML().markup((m) =>
+                        m.inlineKeyboard([
+                            m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=${ctx.session.data.courseId}`),
+                        ])))
                 } else {
                     return ctx.reply(e.response.data.result)
                 }

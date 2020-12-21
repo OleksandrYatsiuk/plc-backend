@@ -1,6 +1,5 @@
-import * as mongoose from 'mongoose';
 
-export interface Messages extends mongoose.Document {
+export interface Messages  {
     readonly id: string;
     chat_id?: number;
     userId: string;
