@@ -5,7 +5,6 @@ import * as bodyParser from 'body-parser';
 import { Controller } from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import { NotFoundException } from './exceptions';
-import { sendRequest } from './request-interval';
 const swaggerDocument = require('./swagger/swagger.json');
 import * as swaggerUi from 'swagger-ui-express';
 export default class App {
@@ -24,7 +23,6 @@ export default class App {
 		this.setCors();
 		this.initializeControllers(controllers);
 		this.initializeErrorHandling();
-		this.setCron();
 	}
 	/**
 	* Headers (CORS)
@@ -46,19 +44,10 @@ export default class App {
 		this.app.use(bodyParser.urlencoded({ extended: false }));
 	}
 
-	private setCron(): void {
-		cron.schedule('*/30 * * * *', function () {
-			sendRequest().then(result => {
-				console.log('push bot')
-			})
-		});
-	}
 
 	public listen() {
 		this.app.listen(this.port, () => {
 			console.log(`App running on http://${process.env.API_URL}:${this.port}`);
-			require('./telegram-bot/telegram-bot');
-			sendRequest();
 		});
 	}
 
