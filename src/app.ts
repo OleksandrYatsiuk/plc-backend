@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as cron from "node-cron";
 import * as mongoose from 'mongoose';
 import * as bodyParser from 'body-parser';
 import { Controller } from './interfaces/controller.interface';
