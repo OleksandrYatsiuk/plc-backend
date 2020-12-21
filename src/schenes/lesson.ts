@@ -4,9 +4,8 @@ import { SceneContextMessageUpdate } from 'telegraf/typings/stage';
 import { Message } from 'telegraf/typings/telegram-types';
 import { ApiHelperService } from '../request-helper';
 import { bot } from '../telegram-bot';
-import { urls } from '../storage/url';
 
-const backend = new ApiHelperService(urls.prod.backend)
+const backend = new ApiHelperService(process.env.BACKEND_URL)
 export const courses_lesson = new BaseScene('lessons');
 
 courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
@@ -30,14 +29,14 @@ courses_lesson.enter((ctx: SceneContextMessageUpdate & { session: any }) => {
                 ctx.replyWithHTML(lesson.context, Extra.HTML().markup((m) =>
                     m.inlineKeyboard([
                         m.callbackButton('Надати відповідь', 'next'),
-                        m.urlButton('Перейти на деталі заняття', `${urls.prod.frontend}/homework/lessons/${lessonId}?chat_id=${ctx.chat.id}`)
+                        m.urlButton('Перейти на деталі заняття', `${process.env.FRONTEND_URL}/homework/lessons/${lessonId}?chat_id=${ctx.chat.id}`)
                     ])
                 ))
             }).catch(e => {
                 if (e.response.data.code === 403) {
                     return ctx.reply('У Вас немає доступу до цього уроку. \n Ви можете оплатити курс і продовжити навчання далі.', Extra.HTML().markup((m) =>
                         m.inlineKeyboard([
-                            m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=${ctx.session.data.courseId}`),
+                            m.urlButton('Оплатити', `${process.env.FRONTEND_URL}/payment?chat_id=${ctx.chat.id}&courseId=${ctx.session.data.courseId}`),
                         ])))
                 } else {
                     return ctx.reply(e.response.data.result)

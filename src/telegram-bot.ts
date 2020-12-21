@@ -5,11 +5,12 @@ import { Message } from 'telegraf/typings/telegram-types';
 import { ApiHelperService } from './request-helper';
 import { courses_lesson } from './schenes/lesson';
 import { about, result } from './storage/texts';
-import { urls } from './storage/url';
+import 'dotenv/config';
+
 
 export const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const backend = new ApiHelperService(urls.prod.backend)
+const backend = new ApiHelperService(process.env.BACKEND_URL)
 
 bot.telegram.deleteWebhook()
     .then(success => {
@@ -54,12 +55,12 @@ bot.hears('💰 Оплата', (ctx: TelegrafContext) => {
     return ctx.reply('Practical Legal Courses – школа нового формату',
         Extra.HTML().markup((m) =>
             m.inlineKeyboard([
-                m.urlButton('Оплатити', `${urls.prod.frontend}/payment?chat_id=${ctx.chat.id}&courseId=1`),
+                m.urlButton('Оплатити', `${process.env.FRONTEND_URL}/payment?chat_id=${ctx.chat.id}&courseId=1`),
             ])))
 });
 
 bot.hears('📞 Контакти', (ctx): Promise<Message> => {
-    return ctx.replyWithMarkdown(`Open: [Contacts](${urls.prod.frontend})`);
+    return ctx.replyWithMarkdown(`Open: [Contacts](${process.env.FRONTEND_URL})`);
 })
 
 const stage = new Stage([courses_lesson]);

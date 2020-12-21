@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { Course, CustomMessage, Lesson, User } from 'interfaces';
-import { urls } from './storage/url';
 
 export class ApiHelperService {
-    private _apiUrl = urls.local.backend;
+    private _apiUrl = process.env.BACKEND_URL
     constructor(link?: string) {
         this._apiUrl = link;
     }
@@ -27,6 +26,5 @@ export class ApiHelperService {
     public sendMessage(body: CustomMessage): Promise<CustomMessage> {
         return axios.post(`${this._apiUrl}/messages`, body).then(response => response.data.result)
     }
-
 
 }

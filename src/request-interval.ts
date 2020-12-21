@@ -1,8 +1,9 @@
-import axios from 'axios';
+import { ApiHelperService } from './request-helper';
+const rest = new ApiHelperService();
 export function sendRequest() {
     setInterval(() => {
         console.log('push bot');
-        axios.get('https://api-plc.herokuapp.com/api/v1/courses');
+        rest.courseList();
     }, 29 * 60 * 1000);
 
 
