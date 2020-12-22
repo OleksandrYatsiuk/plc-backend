@@ -13,6 +13,7 @@ export interface PaymentData extends Document {
     amount: number | string;
     courseId?: string | any;
     course?: Course;
+    result_url?: string;
 }
 
 

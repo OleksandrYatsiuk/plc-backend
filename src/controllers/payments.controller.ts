@@ -37,6 +37,7 @@ export class PaymentsController extends BaseController {
                             const obj: Partial<Payment> = {
                                 order_id: record._id,
                                 amount: body.amount,
+                                result_url: body.result_url
                             }
                             const { data, signature } = this.payment.cnb_form(obj);
                             const link = `https://www.liqpay.ua/api/3/checkout?data=${data}&signature=${signature}`;
