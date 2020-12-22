@@ -50,7 +50,6 @@ export class LiqPayService {
                 //     throw new Error('Description can not be blank');
                 if (!params.order_id)
                     throw new Error('Order Id can not be blank');
-                params.result_url = `http://localhost:5000/api/v1/payments/${params.order_id}`
                 return params;
             case EPaymentAction.STATUS:
                 if (!params.order_id)
