@@ -61,7 +61,7 @@ export class StudyProgressController extends BaseController {
                 this.lessonsModel.find({ courseId })
                     .then(lessons => {
                         if (lessons.length > 0) {
-                            const data: Partial<IStudyProgress> = lessons.map(lessonId => ({ courseId, userId, lessonId }))
+                            const data: Partial<any> = lessons.map(lessonId => ({ courseId, userId, lessonId }))
                             this.model.insertMany(data)
                                 .then(result => this.send200(response, result))
                                 .catch(err => next(this.send422(err.message || err)));
