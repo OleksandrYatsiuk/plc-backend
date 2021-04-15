@@ -62,7 +62,7 @@ export class LessonsController extends BaseController {
                 } else {
                     let params = {};
                     if (phone) {
-                        params = { phone: phone.slice(phone.length - 10) }
+                        params = { phone }
                     }
                     if (chat_id) {
                         params = { chat_id: +chat_id };

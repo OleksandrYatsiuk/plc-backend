@@ -29,7 +29,7 @@ export class PaymentsController extends BaseController {
     private generatePayment = (request: express.Request, response: express.Response, next: express.NextFunction) => {
         const body: PaymentData = request.body;
 
-        this.userModel.findOne({ phone: body.phone.slice(body.phone.length - 10) })
+        this.userModel.findOne({ phone: body.phone })
             .then(user => {
                 if (user) {
                     this.model.create({ ...body, userId: user._id })

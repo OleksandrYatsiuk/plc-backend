@@ -51,7 +51,7 @@ export class UsersController extends BaseController {
     };
     private login = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { password, phone } = request.body;
-        this.model.findOne({ phone: phone.slice(phone.length - 10) })
+        this.model.findOne({ phone })
             .then(user => {
                 if (user && compareSync(password, user.passwordHash)) {
                     const token = hashSync(password, 10)
@@ -111,8 +111,8 @@ export class UsersController extends BaseController {
     private generateCode = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { phone } = request.body;
         const code = this.getRandomInt(1000, 9999);
-
-        this.model.findOneAndUpdate({ phone: phone.slice(phone.length - 10) }, { code, updatedAt: Date.now() }, { new: true })
+        console.log(phone);
+        this.model.findOneAndUpdate({ phone: phone }, { code, updatedAt: Date.now() }, { new: true })
             .then(user => {
                 bot.telegram.sendMessage(user.chat_id,
                     `Код активації для заняття: *${code}*. \nДійсний протягом 30хв або до моменту повторної генерації`, { parse_mode: 'Markdown' })
@@ -133,7 +133,7 @@ export class UsersController extends BaseController {
 
     private codeCheck = (request: express.Request, response: express.Response, next: express.NextFunction): void => {
         const { phone, code } = request.body;
-        this.model.exists({ phone: phone.slice(phone.length - 10), code })
+        this.model.exists({ phone: phone, code })
             .then(exist => {
                 if (exist) {
                     this.send200(response, true)
